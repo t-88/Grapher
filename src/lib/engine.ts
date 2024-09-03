@@ -1,28 +1,12 @@
 import camera from "./camera";
 import { Vector2, type Pointer } from "./math";
-import Mouse from "./mouse";
 import { INode, ONode, Node, type PinMouseAction, Pin } from "./node";
 import renderer from "./render";
 import p5Types from "p5";
+import Wire from "./wire";
+import mouse from "./mouse";
 
 
-
-class Wire {
-    uuid : string; 
-    startPin: Pointer<Pin>;
-    endPin: Pointer<Pin>;
-    constructor() {
-        this.startPin = { val: new Pin()};
-        this.endPin = { val: new Pin()};
-        this.uuid = crypto.randomUUID();
-    }
-
-    draw()  {
-        let startVec = camera.toWorldSpace(new Vector2(this.startPin.val.pos.x,this.startPin.val.pos.y));
-        let endVec =  camera.toWorldSpace(new Vector2(this.endPin.val.pos.x,this.endPin.val.pos.y));
-        renderer.drawVector(startVec.x, startVec.y, endVec.x, endVec.y, "yellow");
-    }
-}
 
 interface CurrWire {
     wire : Wire;
@@ -36,17 +20,18 @@ class Engine {
     static #instance: Engine;
 
     ctx: CanvasRenderingContext2D | undefined = undefined;
-    mouse: Mouse = new Mouse();
     node!: Node;
     nodes: Array<Node> = new Array();
     wires : Map<Array<string>,Wire> = new Map();
-    curWire!: CurrWire;
     p5? : p5Types; 
 
-    constructor() {
 
+    curWire!: CurrWire;
+    
+    // wire selected to be deleted
+    selectedWire : Wire | null = null;
 
-    }
+    constructor() {}
 
     setup(p5: p5Types, canvasParentRef: Element) {
         this.p5 = p5;
@@ -85,21 +70,21 @@ class Engine {
         if(!this.p5) return;
 
 
-        if (!this.mouse.draging) {
+        if (!mouse.draging) {
             this.curWire.drag = false;
         }
        
         this.update();
 
         for (let node of this.nodes) {
-            node.onMouseMove(this.mouse);
+            node.onMouseMove();
         }
     }
     onMouseDrag() {
         if(!this.p5) return;
 
         if(this.node.draging) {
-            let pos: Vector2 = camera.toScreenSpace(this.mouse.pos.sub(this.mouse.offset));
+            let pos: Vector2 = camera.toScreenSpace(mouse.pos.sub(mouse.offset));
             pos.x = Math.ceil(pos.x / 20) * 20;
             pos.y = Math.ceil(pos.y / 20) * 20;
             this.node.pos = pos;
@@ -108,13 +93,13 @@ class Engine {
     onMouseUp() {
         if(!this.p5) return;
 
-        this.mouse.offset.x = 0;
-        this.mouse.offset.y = 0;
-        this.mouse.draging = false;
+        mouse.offset.x = 0;
+        mouse.offset.y = 0;
+        mouse.draging = false;
         this.node.draging = false;
 
         for (let node of this.nodes) {
-            node.onMouseUp(this.mouse);
+            node.onMouseUp();
         }
         this.curWire.drag = false;
 
@@ -126,21 +111,26 @@ class Engine {
     onMouseDown() {
         if(!this.p5) return;
 
-        this.mouse.draging = true;
+        mouse.draging = true;
 
+        this.selectedWire = null;
+
+        for (let wire of this.wires.values()) {
+            wire.onMouseDown();
+        }
         for (let node of this.nodes) {
-            node.onMouseDown(this.mouse);
+            node.onMouseDown();
         }
 
         for (let node of this.nodes) {
-            if (node.collidePoint(camera.toScreenSpace(this.mouse.pos))) {
+            if (node.collidePoint(camera.toScreenSpace(mouse.pos))) {
                 this.node = node;
                 if(this.node.pin.hover) {
                     this.node.draging = false;
                 } else {
                     this.node.draging = true;
                 }
-                this.mouse.offset = new Vector2(this.p5.mouseX, this.p5.mouseY).sub(camera.toWorldSpace(this.node.pos))
+                mouse.offset = new Vector2(this.p5.mouseX, this.p5.mouseY).sub(camera.toWorldSpace(this.node.pos))
                 break;
             }
         }
@@ -167,6 +157,16 @@ class Engine {
             camera.setZoom(camera.zoom + 0.1);
         }
 
+        if(this.p5.keyIsDown(8)) {
+            if(this.selectedWire) {
+                for(let uuids of this.wires.keys()) {
+                    if(uuids.includes(this.selectedWire.startPin.val.uuid) && uuids.includes(this.selectedWire.endPin.val.uuid)) {
+                        this.wires.delete(uuids);
+                        break;
+                    }
+                }                
+            }
+        }
     }
     onPinSelected(pinPosPointer: Pointer<Pin>, action: PinMouseAction) {
         if (action == "Select") {
@@ -213,16 +213,22 @@ class Engine {
     update() {
         if(!this.p5) return
 
-        this.mouse.pos.x = this.p5.mouseX;
-        this.mouse.pos.y = this.p5.mouseY;
+        mouse.pos.x = this.p5.mouseX;
+        mouse.pos.y = this.p5.mouseY;
 
         if (this.curWire.drag) {
-            this.curWire.endPos = camera.toScreenSpace(new Vector2(this.mouse.pos.x, this.mouse.pos.y));
+            this.curWire.endPos = camera.toScreenSpace(new Vector2(mouse.pos.x, mouse.pos.y));
         }
 
         for (let node of this.nodes) {
-            node.update(this.mouse);
+            node.update();
         }
+
+
+        for(let wire of this.wires.values()) {
+            wire.update();
+        }
+
     }
     draw() {
         this.update()

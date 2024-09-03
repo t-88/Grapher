@@ -21,6 +21,10 @@ class Vector2 {
     sub(other: Vector2) : Vector2 {
         return new Vector2(this.x - other.x,this.y - other.y); 
     }
+
+    length() : number {
+        return Math.sqrt(this.x * this.x + this.y * this.y); 
+    }
 }
 
 

@@ -2,6 +2,7 @@ import camera from "./camera";
 import { engine } from "./engine";
 import { circleCollidePoint, Vector2 } from "./math";
 import type Mouse from "./mouse";
+import mouse from "./mouse";
 import renderer from "./render";
 
 type NodeType = "None" | "Input" | "Output";
@@ -53,18 +54,18 @@ class Node {
     }
 
 
-    onMouseMove(mouse : Mouse) {
+    onMouseMove() {
     }
 
-    onMouseUp(mouse : Mouse) {
+    onMouseUp() {
         if(this.pin.hover) engine.onPinSelected({val : this.pin} ,"Drop");
 
     }
-    onMouseDown(mouse : Mouse) {
+    onMouseDown() {
         if(this.pin.hover) engine.onPinSelected({val : this.pin},"Select");
     }
 
-    update(mouse : Mouse) {
+    update() {
         let pinPos = camera.toWorldSpace(new Vector2(this.pin.pos.x,this.pin.pos.y));
         this.pin.hover = !engine.node.draging && circleCollidePoint(pinPos.x,pinPos.y,PIN_RADUIS,mouse.pos.x,mouse.pos.y)
     }
@@ -76,11 +77,11 @@ class INode extends Node {
         this.type = "Input";
         this.pin.pos = new Vector2(this.pos.x + (this.size.w - PIN_RADUIS) / 2, this.pos.y + this.size.h);
     }
-    update(mouse : Mouse) {
+    update() {
         this.pin.pos.x = this.pos.x + (this.size.w - PIN_RADUIS) / 2; 
         this.pin.pos.y = this.pos.y + this.size.h;
 
-        super.update(mouse);
+        super.update();
 
     }
 }
@@ -90,11 +91,11 @@ class ONode extends Node {
         this.type = "Output";
         this.pin.pos = new Vector2(this.pos.x + (this.size.w - PIN_RADUIS) / 2, this.pos.y);
     }
-    update(mouse : Mouse) {
+    update() {
         this.pin.pos.x = this.pos.x + (this.size.w - PIN_RADUIS) / 2;
         this.pin.pos.y = this.pos.y;
 
-        super.update(mouse);
+        super.update();
     }
 }
 

@@ -64,8 +64,6 @@ class Renderer {
     this.drawLine(x1,y1,x1 - headlen * Math.cos(angle - Math.PI / 7), y1 - headlen * Math.sin(angle - Math.PI / 7),color);
     this.drawLine(x1,y1,x1 - headlen * Math.cos(angle + Math.PI / 7), y1 - headlen * Math.sin(angle + Math.PI / 7),color);
     this.drawLine(x1 - headlen * Math.cos(angle + Math.PI / 7), y1 - headlen * Math.sin(angle + Math.PI / 7),x1 - headlen * Math.cos(angle - Math.PI / 7), y1 - headlen * Math.sin(angle - Math.PI / 7),color);
-
-
   }
 
 }
