@@ -40,7 +40,7 @@ class Engine {
 
     setup(p5: p5Types, canvasParentRef: Element) {
         this.p5 = p5;
-        this.p5.createCanvas(1500, 1000).parent(canvasParentRef);
+        this.p5.createCanvas(1200, 900).parent(canvasParentRef);
         renderer.setP5(p5);
         camera.setP5(p5)
 
