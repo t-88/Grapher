@@ -13,7 +13,8 @@ function App() {
   return (
     <>
       <div id='tools'>
-
+      <button onClick={() => engine.addINode()}>Input Node</button>
+      <button onClick={() => engine.addONode()}>Output Node</button>
       </div>
       <div id='sketch-canvas'>
       <Sketch setup = {(p5: p5Types, elem: Element) => setup(p5, elem)} 

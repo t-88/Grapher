@@ -15,5 +15,9 @@
 #tools {
   height: 100%;
   width: 300px;
-  background: red;
+  background: #BBBBBB;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
