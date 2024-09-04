@@ -177,6 +177,7 @@ class Engine {
                     }
                 }
             }
+            this.selectedWire = null;
         }
     }
     onPinSelected(pinPosPointer: Pointer<Pin>, action: PinMouseAction) {
