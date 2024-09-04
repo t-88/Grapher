@@ -9,11 +9,16 @@ import mouse from "./mouse";
 
 
 interface CurrWire {
-    wire : Wire;
-    endPos : Vector2;
+    wire: Wire;
+    endPos: Vector2;
     startPos: Vector2;
-    drag : boolean;
+    drag: boolean;
     connectedToEnd: boolean;
+}
+
+interface RectPointer {
+    posPointer: Pointer<Vector2>,
+    sizePointer: Pointer<Vector2>,
 }
 
 class Engine {
@@ -22,16 +27,20 @@ class Engine {
     ctx: CanvasRenderingContext2D | undefined = undefined;
     node!: Node;
     nodes: Array<Node> = new Array();
-    wires : Map<Array<string>,Wire> = new Map();
-    p5? : p5Types; 
+    wires: Map<Array<string>, Wire> = new Map();
+    p5?: p5Types;
 
 
     curWire!: CurrWire;
-    
-    // wire selected to be deleted
-    selectedWire : Wire | null = null;
 
-    constructor() {}
+
+    // wire selected to be deleted
+    selectedWire: Wire | null = null;
+
+    // rect outline
+    outlineRect: RectPointer | null = null;
+
+    constructor() { }
 
     setup(p5: p5Types, canvasParentRef: Element) {
         this.p5 = p5;
@@ -44,10 +53,12 @@ class Engine {
         this.nodes.push(new ONode(200, 400, 200, 60));
         this.node = this.nodes[0];
 
-        this.curWire = {connectedToEnd : false, drag : false, wire: new Wire(), startPos: new Vector2(0,0),endPos: new Vector2(0,0)};
+        this.curWire = { connectedToEnd: false, drag: false, wire: new Wire(), startPos: new Vector2(0, 0), endPos: new Vector2(0, 0) };
         this.curWire.drag = false;
         this.curWire.connectedToEnd = false;
-        
+
+
+
     }
 
     public static get instance(): Engine {
@@ -67,13 +78,13 @@ class Engine {
 
 
     onMouseMove() {
-        if(!this.p5) return;
+        if (!this.p5) return;
 
 
         if (!mouse.draging) {
             this.curWire.drag = false;
         }
-       
+
         this.update();
 
         for (let node of this.nodes) {
@@ -81,17 +92,16 @@ class Engine {
         }
     }
     onMouseDrag() {
-        if(!this.p5) return;
+        if (!this.p5) return;
 
-        if(this.node.draging) {
+        if (this.node.draging) {
             let pos: Vector2 = camera.toScreenSpace(mouse.pos.sub(mouse.offset));
-            pos.x = Math.ceil(pos.x / 20) * 20;
-            pos.y = Math.ceil(pos.y / 20) * 20;
-            this.node.pos = pos;
+            this.node.pos.x = Math.ceil(pos.x / 20) * 20;
+            this.node.pos.y = Math.ceil(pos.y / 20) * 20;
         }
     }
     onMouseUp() {
-        if(!this.p5) return;
+        if (!this.p5) return;
 
         mouse.offset.x = 0;
         mouse.offset.y = 0;
@@ -103,17 +113,18 @@ class Engine {
         }
         this.curWire.drag = false;
 
-        if(!this.curWire.connectedToEnd) {
-            this.curWire.startPos = new Vector2(0,0);
-            this.curWire.endPos = new Vector2(0,0); 
+        if (!this.curWire.connectedToEnd) {
+            this.curWire.startPos = new Vector2(0, 0);
+            this.curWire.endPos = new Vector2(0, 0);
         }
     }
     onMouseDown() {
-        if(!this.p5) return;
+        if (!this.p5) return;
 
         mouse.draging = true;
 
         this.selectedWire = null;
+        this.outlineRect = null;
 
         for (let wire of this.wires.values()) {
             wire.onMouseDown();
@@ -125,7 +136,7 @@ class Engine {
         for (let node of this.nodes) {
             if (node.collidePoint(camera.toScreenSpace(mouse.pos))) {
                 this.node = node;
-                if(this.node.pin.hover) {
+                if (this.node.pin.hover) {
                     this.node.draging = false;
                 } else {
                     this.node.draging = true;
@@ -136,13 +147,13 @@ class Engine {
         }
     }
     onKeyDown() {
-        if(!this.p5) return
+        if (!this.p5) return
 
 
-        if(this.p5.keyIsDown(this.p5.LEFT_ARROW)) {
+        if (this.p5.keyIsDown(this.p5.LEFT_ARROW)) {
             camera.setOffsetX(camera.offset.x + 10);
 
-        } else if(this.p5.keyIsDown(this.p5.RIGHT_ARROW)) {
+        } else if (this.p5.keyIsDown(this.p5.RIGHT_ARROW)) {
             camera.setOffsetX(camera.offset.x - 10);
         }
         if (this.p5.keyIsDown(this.p5.UP_ARROW)) {
@@ -157,14 +168,14 @@ class Engine {
             camera.setZoom(camera.zoom + 0.1);
         }
 
-        if(this.p5.keyIsDown(8)) {
-            if(this.selectedWire) {
-                for(let uuids of this.wires.keys()) {
-                    if(uuids.includes(this.selectedWire.startPin.val.uuid) && uuids.includes(this.selectedWire.endPin.val.uuid)) {
+        if (this.p5.keyIsDown(8)) {
+            if (this.selectedWire) {
+                for (let uuids of this.wires.keys()) {
+                    if (uuids.includes(this.selectedWire.startPin.val.uuid) && uuids.includes(this.selectedWire.endPin.val.uuid)) {
                         this.wires.delete(uuids);
                         break;
                     }
-                }                
+                }
             }
         }
     }
@@ -177,7 +188,7 @@ class Engine {
         }
 
         if (action == "Drop") {
-            if(pinPosPointer.val.uuid == this.curWire.wire.startPin.val.uuid) return;
+            if (pinPosPointer.val.uuid == this.curWire.wire.startPin.val.uuid) return;
 
             this.curWire.connectedToEnd = true;
             this.curWire.wire.endPin = pinPosPointer;
@@ -188,30 +199,30 @@ class Engine {
             cur_wire.endPin = this.curWire.wire.endPin;
             cur_wire.startPin = this.curWire.wire.startPin;
 
-            let cur_uuids : Array<string> = new Array();
+            let cur_uuids: Array<string> = new Array();
             cur_uuids.push(this.curWire.wire.startPin.val.uuid);
             cur_uuids.push(this.curWire.wire.endPin.val.uuid);
-            
-            
+
+
             let found = false;
-            for(let uuids of this.wires.keys()) {
-                if(uuids.includes(cur_uuids[0]) && uuids.includes(cur_uuids[1])) {
-                    this.wires.set(uuids,cur_wire);
+            for (let uuids of this.wires.keys()) {
+                if (uuids.includes(cur_uuids[0]) && uuids.includes(cur_uuids[1])) {
+                    this.wires.set(uuids, cur_wire);
                     found = true;
                     break;
                 }
             }
-            if(!found) {
-                this.wires.set(cur_uuids,cur_wire);
+            if (!found) {
+                this.wires.set(cur_uuids, cur_wire);
             }
 
-            this.curWire.startPos = new Vector2(0,0);
-            this.curWire.endPos = new Vector2(0,0); 
+            this.curWire.startPos = new Vector2(0, 0);
+            this.curWire.endPos = new Vector2(0, 0);
         }
 
     }
     update() {
-        if(!this.p5) return
+        if (!this.p5) return
 
         mouse.pos.x = this.p5.mouseX;
         mouse.pos.y = this.p5.mouseY;
@@ -225,7 +236,7 @@ class Engine {
         }
 
 
-        for(let wire of this.wires.values()) {
+        for (let wire of this.wires.values()) {
             wire.update();
         }
 
@@ -236,25 +247,33 @@ class Engine {
         renderer.clearScreen("black");
         for (let y = 0; y < 50 / camera.zoom; y += 1) {
             for (let x = 0; x < 60 / camera.zoom; x += 1) {
-                renderer.drawCircle(x * 20 * camera.zoom + camera.offset.x, y * 20 * camera.zoom + camera.offset.y, camera.zoom,"yellow");
+                renderer.drawCircle(x * 20 * camera.zoom + camera.offset.x, y * 20 * camera.zoom + camera.offset.y, camera.zoom, "yellow");
             }
         }
 
-        for(let wire of this.wires.values()) {
-            wire.draw();
-        }
 
-        {
-            let startVec = camera.toWorldSpace(new Vector2(this.curWire.startPos.x,this.curWire.startPos.y));
-            let endVec = camera.toWorldSpace(new Vector2(this.curWire.endPos.x,this.curWire.endPos.y));
-            renderer.drawVector(startVec.x, startVec.y, endVec.x, endVec.y, "yellow")        
-        }
 
         camera.begin();
 
-            for (let node of this.nodes) {
-                node.draw();
-            }
+        for (let wire of this.wires.values()) {
+            wire.draw();
+        }
+
+        renderer.drawVector(this.curWire.startPos.x, this.curWire.startPos.y, this.curWire.endPos.x, this.curWire.endPos.y, "yellow")
+
+
+        for (let node of this.nodes) {
+            node.draw();
+        }
+
+        if (this.outlineRect) {
+            renderer.drawRectOutline(this.outlineRect.posPointer.val.x - 1, this.outlineRect.posPointer.val.y - 1, this.outlineRect.sizePointer.val.w + 1, this.outlineRect.sizePointer.val.h + 1, "green")
+        }
+        if(this.selectedWire) {
+        renderer.drawVector(this.selectedWire.startPin.val.pos.x, this.selectedWire.startPin.val.pos.y, this.selectedWire.endPin.val.pos.x, this.selectedWire.endPin.val.pos.y, "green");
+
+        }
+
 
         camera.end();
     }
@@ -262,9 +281,9 @@ class Engine {
 }
 
 
-let engine : Engine;
+let engine: Engine;
 function init_engine() {
     engine = Engine.instance;
 }
 
-export {Engine , engine , init_engine};
+export { Engine, engine, init_engine };

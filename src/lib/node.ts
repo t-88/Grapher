@@ -29,6 +29,7 @@ class Node {
     size: Vector2;
     pin : Pin = new Pin();
     draging: boolean = false;
+    hovering: boolean = false;
     type: NodeType = "None";
 
 
@@ -47,11 +48,7 @@ class Node {
         return this.AABB(p.x, p.y, 1, 1);
     }
 
-    draw() {
-        renderer.drawRect(this.pos.x, this.pos.y, this.size.x, this.size.y, "white");
-        renderer.drawCircle(this.pin.pos.x, this.pin.pos.y, PIN_RADUIS, "red");
-        if(this.pin.hover)  renderer.drawCircleOutline(this.pin.pos.x, this.pin.pos.y, PIN_RADUIS, "green");
-    }
+   
 
 
     onMouseMove() {
@@ -63,11 +60,26 @@ class Node {
     }
     onMouseDown() {
         if(this.pin.hover) engine.onPinSelected({val : this.pin},"Select");
+        if(this.collidePoint(camera.toScreenSpace(new Vector2(mouse.pos.x,mouse.pos.y)))) {
+            let THIS = this;
+            engine.outlineRect = {
+                posPointer: { val : THIS.pos},
+                sizePointer: { val : THIS.size},
+            };
+        }
     }
 
     update() {
         let pinPos = camera.toWorldSpace(new Vector2(this.pin.pos.x,this.pin.pos.y));
-        this.pin.hover = !engine.node.draging && circleCollidePoint(pinPos.x,pinPos.y,PIN_RADUIS,mouse.pos.x,mouse.pos.y)
+        this.pin.hover = !engine.node.draging && circleCollidePoint(pinPos.x,pinPos.y,PIN_RADUIS,mouse.pos.x,mouse.pos.y);
+        this.hovering = this.collidePoint(camera.toScreenSpace(new Vector2(mouse.pos.x,mouse.pos.y)));
+    }
+
+    draw() {
+        renderer.drawRect(this.pos.x, this.pos.y, this.size.x, this.size.y, "white");
+        renderer.drawCircle(this.pin.pos.x, this.pin.pos.y, PIN_RADUIS, "red");
+        if(this.pin.hover)  renderer.drawCircleOutline(this.pin.pos.x, this.pin.pos.y, PIN_RADUIS, "green");
+        if(!this.pin.hover && this.hovering) renderer.drawRectOutline(this.pos.x - 1, this.pos.y - 1, this.size.w + 1, this.size.h + 1, "blue") 
     }
 }
 
@@ -80,7 +92,6 @@ class INode extends Node {
     update() {
         this.pin.pos.x = this.pos.x + (this.size.w - PIN_RADUIS) / 2; 
         this.pin.pos.y = this.pos.y + this.size.h;
-
         super.update();
 
     }
@@ -94,7 +105,6 @@ class ONode extends Node {
     update() {
         this.pin.pos.x = this.pos.x + (this.size.w - PIN_RADUIS) / 2;
         this.pin.pos.y = this.pos.y;
-
         super.update();
     }
 }

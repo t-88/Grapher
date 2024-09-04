@@ -21,9 +21,9 @@ class Wire {
     }
 
     update() {
-        let len1 = mouse.pos.sub(this.startPin.val.pos).length();
-        let len2 = mouse.pos.sub(this.endPin.val.pos).length();
-        let len = this.startPin.val.pos.sub(this.endPin.val.pos).length();
+        let len1 = mouse.pos.sub(camera.toWorldSpace(this.startPin.val.pos)).length();
+        let len2 = mouse.pos.sub(camera.toWorldSpace(this.endPin.val.pos)).length();
+        let len =  camera.toWorldSpace(this.startPin.val.pos.sub(this.endPin.val.pos)).length();
         if(Math.abs(len - (len1 + len2)) < 1) {
             this.hoverd = true;
         } else {
@@ -32,12 +32,10 @@ class Wire {
     }
 
     draw()  {
-        let startVec = camera.toWorldSpace(new Vector2(this.startPin.val.pos.x,this.startPin.val.pos.y));
-        let endVec =  camera.toWorldSpace(new Vector2(this.endPin.val.pos.x,this.endPin.val.pos.y));
-        if(this.hoverd || engine.selectedWire == this) {
-            renderer.drawVector(startVec.x, startVec.y, endVec.x, endVec.y, "blue");
+        if(this.hoverd) {
+            renderer.drawVector(this.startPin.val.pos.x, this.startPin.val.pos.y, this.endPin.val.pos.x, this.endPin.val.pos.y, "green");
         } else {
-            renderer.drawVector(startVec.x, startVec.y, endVec.x, endVec.y, "yellow");
+            renderer.drawVector(this.startPin.val.pos.x, this.startPin.val.pos.y, this.endPin.val.pos.x, this.endPin.val.pos.y, "yellow");
         }
 
         
