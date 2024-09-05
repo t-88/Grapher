@@ -21,3 +21,13 @@
   flex-direction: column;
   gap: 24px;
 }
+
+#editor {
+  height: 100%;
+  width: 300px;
+  background: #BBBBBB;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}

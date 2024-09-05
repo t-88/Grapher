@@ -1,6 +1,6 @@
 import camera from "./camera";
 import { Vector2, type Pointer } from "./math";
-import { INode, ONode, Node, type PinMouseAction, Pin } from "./node";
+import { INode, ONode, Node, type PinMouseAction, Pin, PIN_radius } from "./node";
 import renderer from "./render";
 import p5Types from "p5";
 import Wire from "./wire";
@@ -31,8 +31,9 @@ class Engine {
     p5?: p5Types;
 
 
-    curWire!: CurrWire;
-
+    curWire: CurrWire | null = null;
+    nodePtr? : Pointer<Node>;
+    setSelectedNode? : Function;
 
     // wire selected to be deleted
     selectedWire: Wire | null = null;
@@ -49,16 +50,13 @@ class Engine {
         camera.setP5(p5)
 
         this.nodes = new Array();
-        this.nodes.push(new INode(200, 200, 200, 60));
-        this.nodes.push(new ONode(200, 400, 200, 60));
+        this.nodes.push(new INode(200, 200, 200, 40));
+        this.nodes.push(new ONode(200, 400, 200, 40));
         this.node = this.nodes[0];
-
-        this.curWire = { connectedToEnd: false, drag: false, wire: new Wire(), startPos: new Vector2(0, 0), endPos: new Vector2(0, 0) };
-        this.curWire.drag = false;
-        this.curWire.connectedToEnd = false;
-
-
-
+        this.nodePtr = {
+            val: this.nodes[0] 
+        };
+        this.curWire = null;
     }
 
     public static get instance(): Engine {
@@ -80,10 +78,6 @@ class Engine {
     onMouseMove() {
         if (!this.p5) return;
 
-
-        if (!mouse.draging) {
-            this.curWire.drag = false;
-        }
 
         this.update();
 
@@ -111,12 +105,8 @@ class Engine {
         for (let node of this.nodes) {
             node.onMouseUp();
         }
-        this.curWire.drag = false;
 
-        if (!this.curWire.connectedToEnd) {
-            this.curWire.startPos = new Vector2(0, 0);
-            this.curWire.endPos = new Vector2(0, 0);
-        }
+        this.curWire = null;
     }
     onMouseDown() {
         if (!this.p5) return;
@@ -136,6 +126,9 @@ class Engine {
         for (let node of this.nodes) {
             if (node.collidePoint(camera.toScreenSpace(mouse.pos))) {
                 this.node = node;
+                if(this.setSelectedNode) {
+                    this.setSelectedNode({val : this.node});
+                }
                 if (this.node.pin.hover) {
                     this.node.draging = false;
                 } else {
@@ -176,20 +169,18 @@ class Engine {
                         break;
                     }
                 }
+                this.selectedWire = null;
             }
-            this.selectedWire = null;
         }
     }
     onPinSelected(pinPosPointer: Pointer<Pin>, action: PinMouseAction) {
         if (action == "Select") {
-            this.curWire.drag = true;
-            this.curWire.connectedToEnd = false;
+            this.curWire = { connectedToEnd: false, drag: true, wire: new Wire(), startPos: pinPosPointer.val.pos, endPos: new Vector2(0, 0) };
             this.curWire.wire.startPin = pinPosPointer;
-            this.curWire.startPos = pinPosPointer.val.pos;
         }
 
         if (action == "Drop") {
-            if (pinPosPointer.val.uuid == this.curWire.wire.startPin.val.uuid) return;
+            if (this.curWire == null || pinPosPointer.val.uuid == this.curWire.wire.startPin.val.uuid) return;
 
             this.curWire.connectedToEnd = true;
             this.curWire.wire.endPin = pinPosPointer;
@@ -228,7 +219,7 @@ class Engine {
         mouse.pos.x = this.p5.mouseX;
         mouse.pos.y = this.p5.mouseY;
 
-        if (this.curWire.drag) {
+        if (this.curWire != null && this.curWire.drag) {
             this.curWire.endPos = camera.toScreenSpace(new Vector2(mouse.pos.x, mouse.pos.y));
         }
 
@@ -245,10 +236,10 @@ class Engine {
     draw() {
         this.update()
 
-        renderer.clearScreen("black");
+        renderer.clearScreen("#181818");
         for (let y = 0; y < 50 / camera.zoom; y += 1) {
             for (let x = 0; x < 60 / camera.zoom; x += 1) {
-                renderer.drawCircle(x * 20 * camera.zoom + camera.offset.x, y * 20 * camera.zoom + camera.offset.y, camera.zoom, "yellow");
+                renderer.drawCircle(x * 20 * camera.zoom + camera.offset.x, y * 20 * camera.zoom + camera.offset.y, camera.zoom, "#FFFFFF60");
             }
         }
 
@@ -259,8 +250,27 @@ class Engine {
         for (let wire of this.wires.values()) {
             wire.draw();
         }
+        if(this.selectedWire) {
+            renderer.drawVector(this.selectedWire.startPin.val.pos.x+ PIN_radius/2, 
+                this.selectedWire.startPin.val.pos.y+ PIN_radius/2, 
+                this.selectedWire.endPin.val.pos.x + PIN_radius/2, 
+                this.selectedWire.endPin.val.pos.y - this.selectedWire.endPin.val.render_wire_offset.y,
+                "green",
+                {stoke: 2}
+            );            
+        }
 
-        renderer.drawVector(this.curWire.startPos.x, this.curWire.startPos.y, this.curWire.endPos.x, this.curWire.endPos.y, "yellow")
+        if(this.curWire) {
+            renderer.drawVector(this.curWire.wire.startPin.val.pos.x+ PIN_radius/2, 
+                                this.curWire.wire.startPin.val.pos.y+ PIN_radius/2, 
+                                this.curWire.endPos.x, 
+                                this.curWire.endPos.y,
+                                "yellow",
+                                {stoke: 2}
+                            );
+
+            // renderer.drawVector(this.curWire.startPos.x + PIN_radius/2, this.curWire.startPos.y+ PIN_radius/2, this.curWire.endPos.x, this.curWire.endPos.y, "yellow",{stoke: 2})
+        }
 
 
         for (let node of this.nodes) {
@@ -268,11 +278,7 @@ class Engine {
         }
 
         if (this.outlineRect) {
-            renderer.drawRectOutline(this.outlineRect.posPointer.val.x - 1, this.outlineRect.posPointer.val.y - 1, this.outlineRect.sizePointer.val.w + 1, this.outlineRect.sizePointer.val.h + 1, "green")
-        }
-        if(this.selectedWire) {
-        renderer.drawVector(this.selectedWire.startPin.val.pos.x, this.selectedWire.startPin.val.pos.y, this.selectedWire.endPin.val.pos.x, this.selectedWire.endPin.val.pos.y, "green");
-
+            renderer.drawRectOutline(this.outlineRect.posPointer.val.x - 1, this.outlineRect.posPointer.val.y - 1, this.outlineRect.sizePointer.val.w + 2, this.outlineRect.sizePointer.val.h + 2, "green",{radius: 8})
         }
 
 
