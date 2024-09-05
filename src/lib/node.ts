@@ -80,7 +80,7 @@ class Node {
 
     update() {
         let pinPos = camera.toWorldSpace(new Vector2(this.pin.pos.x,this.pin.pos.y));
-        this.pin.hover = !engine.node.draging && rectCollidePoint(mouse.pos.x,mouse.pos.y,pinPos.x,pinPos.y,PIN_radius,PIN_radius);
+        this.pin.hover = !(engine.node?.draging ?? true)  && rectCollidePoint(mouse.pos.x,mouse.pos.y,pinPos.x,pinPos.y,PIN_radius,PIN_radius);
         this.hovering = this.collidePoint(camera.toScreenSpace(new Vector2(mouse.pos.x,mouse.pos.y)));
 
         if(this.orig_text !== this.text) {
@@ -142,9 +142,11 @@ class Node {
 class INode extends Node {
     constructor(x: number, y: number, w: number, h: number) {
         super(x,y,w,h);
+
         this.type = "Input";
         this.pin.pos = new Vector2(this.pos.x + (this.size.w - PIN_radius) / 2, this.pos.y + this.size.h);
         this.pin.render_wire_offset.y = -PIN_radius;
+        this.update();
     }
     update() {
         this.pin.pos.x = this.pos.x + (this.size.w  - PIN_radius ) / 2; 
@@ -157,7 +159,8 @@ class ONode extends Node {
     constructor(x: number, y: number, w: number, h: number) {
         super(x,y,w,h);
         this.type = "Output";
-        this.pin.pos = new Vector2(this.pos.x + (this.size.w - PIN_radius) / 2, this.pos.y);
+        this.pin.pos = new Vector2(this.pos.x + (this.size.w - PIN_radius) / 2, this.pos.y - PIN_radius);
+        this.update();
     }
     update() {
         this.pin.pos.x = this.pos.x + (this.size.w - PIN_radius) / 2;
