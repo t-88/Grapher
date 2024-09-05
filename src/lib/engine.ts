@@ -50,8 +50,8 @@ class Engine {
         camera.setP5(p5)
 
         this.nodes = new Array();
-        this.nodes.push(new INode(200, 200, 200, 40));
-        this.nodes.push(new ONode(200, 400, 200, 40));
+        this.nodes.push(new INode(200, 200, 0, 0));
+        this.nodes.push(new ONode(200, 400, 0, 0));
         this.node = this.nodes[0];
         this.nodePtr = {
             val: this.nodes[0] 
@@ -68,10 +68,10 @@ class Engine {
 
 
     addINode() {
-        this.nodes.push(new INode(this.p5!.width / 2, this.p5!.height / 2, 200, 60));
+        this.nodes.push(new INode(this.p5!.width / 2, this.p5!.height / 2, 0, 0));
     }
     addONode() {
-        this.nodes.push(new ONode(this.p5!.width / 2, this.p5!.height / 2, 200, 60));
+        this.nodes.push(new ONode(this.p5!.width / 2, this.p5!.height / 2, 0, 0));
     }
 
 

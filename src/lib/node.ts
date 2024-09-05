@@ -10,6 +10,7 @@ type PinMouseAction = "Drop" | "Select";
 
 const PIN_radius = 14;
 const MAX_WIDTH = 200;
+const LETTER_HEIGHT = 14;
 
 
 class Pin {
@@ -23,6 +24,20 @@ class Pin {
         this.pos = new Vector2(0,0);
         this.uuid = crypto.randomUUID();
         this.hover = false;
+    }
+}
+
+class EdgeInsets {
+    left :  number = 0;
+    right : number = 0;
+    top :   number = 0;
+    bottom :  number = 0;
+
+    constructor(left :  number,right : number,top :   number,bottom :  number) {
+        this.left = left;
+        this.right = right;
+        this.top = top;
+        this.bottom = bottom;
     }
 }
 
@@ -40,6 +55,8 @@ class Node {
     orig_text: string = "AA";
     splited_text : Array<string> = new Array();
 
+
+    padding : EdgeInsets = new EdgeInsets(8,8,8,8);
 
     constructor(x: number,y: number,w: number,h: number) {
         this.pos = new Vector2(x, y);
@@ -85,7 +102,6 @@ class Node {
 
         if(this.orig_text !== this.text) {
             this.text = this.orig_text;
-            this.splited_text = [];
             
             this.size.x = renderer.textWidth(this.text,16) + 50;
             let chars : Map<string,number> = new Map();
@@ -96,26 +112,28 @@ class Node {
             for(let char of this.text) {
                 let width = 0;
                 if(![...chars.keys()].includes(char)) {
-                    chars.set(char,renderer.textWidth(char,16) + 1);
+                    chars.set(char,renderer.textWidth(char,16));
                 }
                 width = chars.get(char)!; 
 
-                if(all_width + width < MAX_WIDTH) {
+                if(all_width + width < MAX_WIDTH - this.padding.right - this.padding.left) {
                     str += char;
+                    all_width += width;
                 } else {
                     this.splited_text.push(str);
-                    str = "";
-                    all_width = 0;
+                    str = char;
+                    all_width = width;
+
                 }
-                all_width += width;
             }
             if(str.length) {
                 this.splited_text.push(str);
+                str = ""
             }
 
 
-            this.size.y = this.orig_size.y + (this.splited_text.length - 1) *  20 ;
-            this.size.x = Math.min(this.size.x,MAX_WIDTH);
+            this.size.x = Math.min(this.orig_size.x,MAX_WIDTH) + renderer.textWidth(this.splited_text[0],16) + this.padding.right + + this.padding.left;
+            this.size.y = LETTER_HEIGHT + (this.splited_text.length - 1) *  20 + this.padding.bottom + this.padding.top;
         }
     }
 
@@ -127,8 +145,8 @@ class Node {
             renderer.drawText(
                              this.splited_text[i],
                              16,
-                             this.pos.x + (Math.min(this.size.w,MAX_WIDTH) - renderer.textWidth(this.splited_text[i],16)) / 2,
-                             this.pos.y + i * 20 + 24,
+                             this.pos.x + this.padding.left,
+                             this.pos.y + i * 20 + LETTER_HEIGHT + this.padding.top,
                              "white",
                             );
         }
