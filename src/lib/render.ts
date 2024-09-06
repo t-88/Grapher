@@ -78,11 +78,11 @@ class Renderer {
     this.p5.line(x0,y0,x1,y1);
   }
 
-  drawVector(x0: number, y0: number, x1: number, y1: number, color: string ,params? : {stoke? : number}) {
-    const headlen = 20;
+  drawVector(x0: number, y0: number, x1: number, y1: number, color: string ,params? : {stoke? : number, headlen? : number}) {
+    const headlen = params?.headlen ?? 10;
     const angle = Math.atan2(y1 - y0, x1 - x0);
 
-    this.drawLine(x0,y0,x1 - (headlen - 2) * Math.cos(angle),y1 - (headlen - 2) * Math.sin(angle),color,params);
+    this.drawLine(x0,y0,x1 - (headlen - headlen / 10) * Math.cos(angle),y1 - (headlen - headlen / 10) * Math.sin(angle),color,params);
     this.drawLine(x1,y1,x1 - headlen * Math.cos(angle - Math.PI / 7), y1 - headlen * Math.sin(angle - Math.PI / 7),color,params);
     this.drawLine(x1,y1,x1 - headlen * Math.cos(angle + Math.PI / 7), y1 - headlen * Math.sin(angle + Math.PI / 7),color,params);
     this.drawLine(x1 - headlen * Math.cos(angle + Math.PI / 7), y1 - headlen * Math.sin(angle + Math.PI / 7),x1 - headlen * Math.cos(angle - Math.PI / 7), y1 - headlen * Math.sin(angle - Math.PI / 7),color,params);

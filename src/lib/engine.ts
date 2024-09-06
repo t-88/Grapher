@@ -5,6 +5,7 @@ import renderer from "./render";
 import p5Types from "p5";
 import Wire from "./wire";
 import mouse from "./mouse";
+import { mkProxy } from "./utils";
 
 
 
@@ -20,6 +21,8 @@ interface RectPointer {
     posPointer: Pointer<Vector2>,
     sizePointer: Pointer<Vector2>,
 }
+
+
 
 class Engine {
     static #instance: Engine;
@@ -57,6 +60,8 @@ class Engine {
             val: this.nodes[0] 
         };
         this.curWire = null;
+    
+        
     }
 
     public static get instance(): Engine {
@@ -143,17 +148,17 @@ class Engine {
         if (!this.p5) return
 
 
-        if (this.p5.keyIsDown(this.p5.LEFT_ARROW)) {
-            camera.setOffsetX(camera.offset.x + 10);
+        // if (this.p5.keyIsDown(this.p5.LEFT_ARROW)) {
+        //     camera.setOffsetX(camera.offset.x + 10);
 
-        } else if (this.p5.keyIsDown(this.p5.RIGHT_ARROW)) {
-            camera.setOffsetX(camera.offset.x - 10);
-        }
-        if (this.p5.keyIsDown(this.p5.UP_ARROW)) {
-            camera.setOffsetY(camera.offset.y - 10);
-        } else if (this.p5.keyIsDown(this.p5.DOWN_ARROW)) {
-            camera.setOffsetY(camera.offset.y + 10);
-        }
+        // } else if (this.p5.keyIsDown(this.p5.RIGHT_ARROW)) {
+        //     camera.setOffsetX(camera.offset.x - 10);
+        // }
+        // if (this.p5.keyIsDown(this.p5.UP_ARROW)) {
+        //     camera.setOffsetY(camera.offset.y - 10);
+        // } else if (this.p5.keyIsDown(this.p5.DOWN_ARROW)) {
+        //     camera.setOffsetY(camera.offset.y + 10);
+        // }
 
         if (this.p5.keyIsDown(109)) {
             camera.setZoom(camera.zoom - 0.1);
