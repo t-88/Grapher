@@ -5,7 +5,8 @@ import renderer from "./render";
 import p5Types from "p5";
 import Wire from "./wire";
 import mouse from "./mouse";
-import { mkProxy } from "./utils";
+
+
 
 
 

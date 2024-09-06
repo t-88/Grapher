@@ -62,10 +62,19 @@ function App() {
   return (
     <>
       <div id='tools'>
+        <center id='logo'><h3>Grapher</h3></center>
         <button onClick={() => engine.addINode()}>Input Node</button>
         <button onClick={() => engine.addONode()}>Output Node</button>
       </div>
       <div id='sketch-canvas'>
+        {/* <div 
+            id='canvas'
+            onMouseMove={(evt) => engine.onMouseMove()}
+            onMouseDown={(evt) => engine.onMouseDown()}
+            onMouseUp={(evt) => engine.onMouseUp()}
+            onKeyDown={(evt) => engine.onMouseUp()}
+        >
+        </div> */}
         <Sketch setup={(p5: p5Types, elem: Element) => setup(p5, elem)}
           draw={() => engine.draw()}
           mouseMoved={() => engine.onMouseMove()}
