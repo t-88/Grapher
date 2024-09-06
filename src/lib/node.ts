@@ -1,6 +1,6 @@
 import camera from "./camera";
 import { engine } from "./engine";
-import { circleCollidePoint, rectCollidePoint, Vector2 } from "./math";
+import {  rectCollidePoint, Vector2 } from "./math";
 import mouse from "./mouse";
 import renderer from "./render";
 import { mkProxy } from "./utils";
@@ -10,7 +10,7 @@ type PinMouseAction = "Drop" | "Select";
 
 
 const PIN_radius = 14;
-const MAX_WIDTH = 200;
+const MAX_WIDTH = 300;
 const FONT_SIZE = 16;
 const LETTER_HEIGHT = FONT_SIZE - 2;
 
@@ -53,12 +53,12 @@ class Node {
     hovering: boolean = false;
     type: NodeType = "None";
 
-    text : string = "A";
-    orig_text: string = "AA";
+    text : string = " ";
+    orig_text: string = "";
     splited_text : Array<string> = new Array();
 
 
-    padding : EdgeInsets = new EdgeInsets(8,8,8,8);
+    padding : EdgeInsets = new EdgeInsets(16,16,16,16);
     papddingProx : EdgeInsets;  
 
 
@@ -118,6 +118,8 @@ class Node {
         let all_width = 0;
         let str = "";
 
+        let max_width = 0;
+
         this.splited_text = [];
         for(let char of this.text) {
             let width = 0;
@@ -126,23 +128,42 @@ class Node {
             }
             width = chars.get(char)!; 
 
-            if(all_width + width + 8 < MAX_WIDTH) {
-                str += char;
-                all_width += width;
-            } else {
+            if(char == "\n") {
+                if(all_width > max_width) {
+                    max_width = all_width;
+                }
+                all_width = 0;
                 this.splited_text.push(str);
-                str = char;
-                all_width = width;
+                str = "";
+            } else {
+                if(all_width + width + 8 < MAX_WIDTH) {
+                    str += char;
+                    all_width += width;
+                } else {
+                    this.splited_text.push(str);
+                    str = char;
 
+                    if(all_width > max_width) {
+                        max_width = all_width;
+                    }
+                    all_width = width;
+    
+                }
             }
+
         }
         if(str.length) {
             this.splited_text.push(str);
             str = ""
         }
 
+        if(all_width > max_width) {
+            max_width = all_width;
+        }        
 
-        this.size.x = Math.min(this.orig_size.x + this.padding.right + this.padding.left,MAX_WIDTH ) + renderer.textWidth(this.splited_text[0],16) ;
+
+
+        this.size.x = Math.min(this.orig_size.x + this.padding.right + this.padding.left,MAX_WIDTH ) + max_width ;
         this.size.y = LETTER_HEIGHT + (this.splited_text.length - 1) *  20 + this.padding.bottom + this.padding.top;
     }
 
@@ -158,12 +179,12 @@ class Node {
 
     draw() {
 
-        renderer.drawRect(this.pos.x, this.pos.y, this.size.w,  this.size.h, "grey",{radius : 4});
+        renderer.drawRect(this.pos.x, this.pos.y, this.size.w,  this.size.h, "#606060",{radius : 4});
         for(let i = 0; i < this.splited_text.length; i++) {
             renderer.drawText(
                              this.splited_text[i],
                              16,
-                             this.pos.x +Math.min( this.padding.left,  this.size.x - renderer.textWidth(this.splited_text[0],FONT_SIZE)  - this.padding.right),
+                             this.pos.x + Math.min( this.padding.left,  Math.max(0,this.size.x - renderer.textWidth(this.splited_text[0],FONT_SIZE)  - this.padding.right)),
                              this.pos.y + i * 20 + LETTER_HEIGHT + this.padding.top,
                              "white",
                             );

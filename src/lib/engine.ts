@@ -23,6 +23,8 @@ interface RectPointer {
 }
 
 
+const CANVAS_VECTOR = new Vector2(1100,800);
+
 
 class Engine {
     static #instance: Engine;
@@ -48,7 +50,7 @@ class Engine {
 
     setup(p5: p5Types, canvasParentRef: Element) {
         this.p5 = p5;
-        this.p5.createCanvas(1200, 900).parent(canvasParentRef);
+        this.p5.createCanvas(CANVAS_VECTOR.w, CANVAS_VECTOR.h).parent(canvasParentRef);
         renderer.setP5(p5);
         camera.setP5(p5)
 
@@ -241,10 +243,10 @@ class Engine {
     draw() {
         this.update()
 
-        renderer.clearScreen("#181818");
+        renderer.clearScreen("#FFFFFF");
         for (let y = 0; y < 50 / camera.zoom; y += 1) {
             for (let x = 0; x < 60 / camera.zoom; x += 1) {
-                renderer.drawCircle(x * 20 * camera.zoom + camera.offset.x, y * 20 * camera.zoom + camera.offset.y, camera.zoom, "#FFFFFF60");
+                renderer.drawCircle(x * 20 * camera.zoom + camera.offset.x, y * 20 * camera.zoom + camera.offset.y, camera.zoom, "#000000F0");
             }
         }
 
