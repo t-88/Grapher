@@ -1,22 +1,20 @@
 import './App.css';
 
-import Sketch from "react-p5";
-import p5Types from "p5";
-import { engine, init_engine } from './lib/engine';
-import { useEffect, useRef, useState } from 'react';
+import { engine } from './lib/engine';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import type { Pointer } from './lib/math';
 import type { Node } from './lib/node';
+import { useSnapshot } from 'valtio';
 
 
 function InlineNumberInput({ watch, watchValue, lable, onChange }: { watch: object, watchValue: () => string, lable: string, onChange: Function }) {
   const ref = useRef<HTMLInputElement | null>(null);
-
   useEffect(() => {
     if (ref.current) {
       ref.current.value = watchValue();
-    
+
     }
-  
+
   }, [watch, ref]);
   return <div className='custom-input'>
     <div className='lable-container'>
@@ -50,15 +48,12 @@ function TextAreaInput({ watch, watchValue, onChange }: { watch: object, watchVa
 
 function App() {
   const [selectedNode, setSelectedNode] = useState<Pointer<Node> | null>(null);
-  function onSelectNode(ptr: Pointer<Node>) {
-    setSelectedNode(ptr);
-  }
 
-  function setup(p5: p5Types, elem: Element) {
-    init_engine();
-    engine.setSelectedNode = (ptr: Pointer<Node>) => onSelectNode(ptr);
-    engine.setup(p5, elem);
-  }
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  const wireElemsSnap = useSnapshot(engine.wiresElems);
+
+
   return (
     <>
       <div id='tools'>
@@ -67,23 +62,37 @@ function App() {
         <button onClick={() => engine.addONode()}>Output Node</button>
       </div>
       <div id='sketch-canvas'>
-        {/* <div 
-            id='canvas'
-            onMouseMove={(evt) => engine.onMouseMove()}
-            onMouseDown={(evt) => engine.onMouseDown()}
-            onMouseUp={(evt) => engine.onMouseUp()}
-            onKeyDown={(evt) => engine.onMouseUp()}
+        <div
+          ref={ref}
+          id='canvas'
+          onMouseMove={(evt: React.MouseEvent) => engine.onMouseMove(evt, ref.current!)}
+          onMouseDown={() => engine.onMouseDown()}
+          onMouseUp={() => engine.onMouseUp()}
+          onDrag={() => engine.onMouseDrag()}
         >
-        </div> */}
-        <Sketch setup={(p5: p5Types, elem: Element) => setup(p5, elem)}
-          draw={() => engine.draw()}
-          mouseMoved={() => engine.onMouseMove()}
-          mousePressed={() => engine.onMouseDown()}
-          mouseReleased={() => engine.onMouseUp()}
-          mouseDragged={() => engine.onMouseDrag()}
-          keyPressed={() => engine.onKeyDown()}
-        />
+          {
+            engine.nodes.map((node) => {
+              return node.renderElem();
+            })
+          }
+
+          <svg width="1200" height="1200">
+            {
+              wireElemsSnap.map((wire) => {
+                return <Fragment key={JSON.stringify(wire)}> {wire.renderElem()} </Fragment>;
+              })
+              
+            }
+
+            {
+              engine.curWire.renderElem()
+            }
+
+          </svg>
+          
+        </div>
       </div>
+
       <div id='editor'>
         {
           selectedNode ?

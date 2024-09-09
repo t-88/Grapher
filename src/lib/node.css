@@ -1,0 +1,8 @@
+
+.rect-elem:hover {
+    outline: solid green 3px;
+}
+
+.pin-elem:hover {
+    outline: solid green 3px;
+}

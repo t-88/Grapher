@@ -7,12 +7,16 @@
   font-family: 'Courier New', Courier, monospace;
 }
 #canvas  {
+  position: relative;
   width: 1100px;
   height: 800px;
   border-radius: 4px;
   overflow: hidden;
-  
-  background: red;
+
+  background: grey;
+  box-shadow: #80808010 0px 0px 4px 4px;
+
+  user-select: none;
 }
 
 #sketch-canvas {
