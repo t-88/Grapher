@@ -1,7 +1,7 @@
 import "./index.css"
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import  { init_engine } from "./lib/engine";
+import  { init_engine } from "./lib/core/engine";
 
 init_engine();
 

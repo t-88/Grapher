@@ -1,10 +1,8 @@
-import p5Types from "p5";
-import { Vector2 } from "./math";
+import { Vector2 } from "../libs/math";
 
 class Camera {
     static #instance : Camera;
 
-    p5! : p5Types;
     offset : Vector2 = new Vector2(0, 0);
     zoom : number = 1; 
 
@@ -24,10 +22,6 @@ class Camera {
     }
 
 
-    setP5(p5: p5Types) {
-        this.p5 = p5;
-      }
-
     setZoom(z : number) {
         if(z > 1.7) {
             z = 1.7;
@@ -45,13 +39,9 @@ class Camera {
   
     
     begin() {
-        this.p5.push();
-        this.p5.scale(this.zoom,this.zoom);
-        this.p5.translate(this.offset.x,this.offset.y);
     }
 
     end() {
-        this.p5.pop();
     }
 
 

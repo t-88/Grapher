@@ -1,4 +1,6 @@
-import { Vector2 } from "./math";
+import { Vector2 } from "../libs/math";
+
+
 
 class Mouse {
     static #instance: Mouse;
@@ -20,6 +22,7 @@ class Mouse {
         }
         return Mouse.#instance;
     }    
+
 }
 
 const mouse = Mouse.instance;

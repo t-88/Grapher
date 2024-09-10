@@ -25,6 +25,11 @@ class Vector2 {
     length() : number {
         return Math.sqrt(this.x * this.x + this.y * this.y); 
     }
+
+    set(x :number , y : number) {
+        this.x = x;
+        this.y = y;
+    } 
 }
 
 
