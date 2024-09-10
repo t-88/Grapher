@@ -14,21 +14,17 @@ function Canvas() {
 
     useEffect(() => {
         engine.onLoad(ref.current!);
-    },[]);
+    }, []);
 
     return <div id='sketch-canvas'>
         <div
             id='canvas'
             ref={ref}
-            onLoad={() => console.log("UR MOM")}
-            onMouseDown={() => engine.onMouseDown()}
-            onMouseUp={() => engine.onMouseUp()}
-            onDrag={() => engine.onMouseDrag()}
+            onMouseDown={(evt) => engine.onMouseDown(evt.nativeEvent)}
+            onMouseUp={(evt) => engine.onMouseUp(evt.nativeEvent)}
         >
 
-            {engine.nodes.map((node) => {
-                return node.renderElem();
-            })}
+            <NodesRenderer />
 
             <svg width={Canvas_Size.w} height={Canvas_Size.h}>
                 <WiresRenderer />
@@ -39,11 +35,18 @@ function Canvas() {
     </div>
 }
 
+function NodesRenderer() {
+    const nodesSnap = useSnapshot(engine.nodes);
+    return engine.nodes.map((node) => {
+        return <Fragment key={node.uuid}> {node.renderElem()} </Fragment>
+    });
+}
 
 function WiresRenderer() {
     const wireElemsSnap = useSnapshot(engine.wiresElems);
+    /* @ts-ignore */
     return wireElemsSnap.map((wire) => {
-        return <Fragment key={JSON.stringify(wire)}> {wire.renderElem()} </Fragment>;
+        return <Fragment key={wire.uuid}> {wire.renderElem()} </Fragment>;
     });
 }
 

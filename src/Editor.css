@@ -1,0 +1,150 @@
+:root {
+    --editor-pin-size: 12px;
+}
+
+
+#editor {
+    height: 100%;
+
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
+
+
+    background: #fdfdfd;
+    box-shadow: #80808010 -5px 0px 4px 0px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: 32px;
+
+}
+
+#editor h4 {
+    margin: 0;
+
+}
+
+
+.custom-input {
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    box-shadow: #00000010 0px 0px 4px 1px;
+    border-radius: 2px;
+    font-size: 12px;
+
+    align-items: center;
+}
+
+.custom-input .lable-container {
+    min-width: 70px;
+    padding: 4px 4px 4px 8px;
+    background: #0066ff;
+    color: white;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.custom-input input {
+    border: none;
+    padding: 8px 8px 8px 16px;
+    outline: none;
+    width: 100%;
+
+
+}
+
+
+.node-text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.node-text-container textarea {
+    outline: none;
+    resize: none;
+    height: 100px;
+    padding: 8px;
+}
+
+.node-padding-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+.input-boxes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.node-editor-area {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+}
+
+
+
+.node-pins-container {
+    width: 100%;
+    display: flex;
+    align-items: start;
+    justify-content: start;
+    gap: 20px;
+    overflow: visible;
+}
+
+
+
+.node-pins {
+    position: relative;
+    width: 120px;
+    height: 40px;
+    outline: 2px solid black;
+    border-radius: 2px;
+    align-self: center;
+
+    .pin {
+        position: absolute;
+        width: var(--editor-pin-size);
+        height: var(--editor-pin-size);
+        border-radius: 100%;
+        background-color: white;
+        border: 2px solid grey;
+        cursor: pointer;
+    }
+
+    .pin-selected {
+        background-color: black;
+        border: none;
+    }
+
+    .top-pin {
+        top: calc(var(--editor-pin-size) / -2);
+        left: calc((100% - var(--editor-pin-size)) / 2);
+    }
+
+    .bottom-pin {
+        bottom: calc((var(--editor-pin-size)) / -2);
+        left: calc((100% - var(--editor-pin-size)) / 2);
+    }
+
+    .left-pin {
+        top: calc((100% - var(--editor-pin-size)) / 2);
+        left: calc((var(--editor-pin-size)) / -2);
+    }
+
+    .right-pin {
+        top: calc((100% - var(--editor-pin-size)) / 2);
+        right: calc((var(--editor-pin-size)) / -2);
+    }
+}

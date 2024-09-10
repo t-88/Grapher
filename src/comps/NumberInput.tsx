@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-function NumberInput({ watch, watchValue, lable, onChange }: { watch: object, watchValue: () => string, lable: string, onChange: Function }) {
+function NumberInput({ watch, watchValue, lable, onChange }: { watch: any, watchValue: () => string, lable: string, onChange: Function }) {
     const ref = useRef<HTMLInputElement | null>(null);
     useEffect(() => {
         if (ref.current) {

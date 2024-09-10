@@ -1,8 +1,69 @@
-
-.rect-elem:hover {
-    outline: solid green 3px;
+:root {
+    --pin-size : 10px; 
 }
 
-.pin-elem:hover {
-    outline: solid green 3px;
+.node-elem {
+    position: absolute;
+
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    p {
+        word-break: break-all;
+        text-align: center;
+    }
+
+
+    .content-elem {
+        background: white;
+        outline: solid 1px #CCCCCC;
+        border-radius: 4px;
+
+        &:hover {
+            outline: solid green 3px;
+
+        }
+    }
+
+    .disabled-pin-elem {
+        display: none;
+
+    }
+
+    .pin-elem {
+        cursor: pointer; 
+        position: absolute;
+        background: #333333;
+        border-radius: 100%;
+        width: var(--pin-size);
+        height: var(--pin-size);
+
+        &:hover {
+            outline: solid green 3px;
+        }
+    }
+
+
+    .top-pin {
+        top: calc(var(--pin-size) / -2);
+        left: calc((100% - var(--pin-size)) / 2);
+    }
+    .bottom-pin {
+        bottom: calc((var(--pin-size)) / -2);
+        left: calc((100% - var(--pin-size)) / 2);
+    }
+
+    .left-pin {
+        top: calc((100% - var(--pin-size)) / 2);
+        left: calc((var(--pin-size)) / -2);
+    }
+    .right-pin {
+        top: calc((100% - var(--pin-size)) / 2);
+        right: calc((var(--pin-size)) / -2);
+    }
+   
+
 }
+

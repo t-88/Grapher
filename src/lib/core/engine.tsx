@@ -3,8 +3,8 @@ import { Vector2, type Pointer } from "../libs/math";
 import CurrWire from "../elems/curWire";
 import Wire from "../elems/wire";
 import mouse from "./mouse";
-import type { Node, NodeSelectAction } from "../elems/node";
-import type { Pin } from "../elems/pin";
+import { Node, type NodeSelectAction } from "../elems/node";
+import type { Pin, PinDir } from "../elems/pin";
 
 
 class Engine {
@@ -16,79 +16,112 @@ class Engine {
         return Engine.#instance;
     }
 
-    
+
     // prxoy
     selectedNode: Pointer<Node | null>;
     wiresElems: Array<Wire>;
+    nodes: Array<Node>;
+
 
     // not inited
     elem!: HTMLDivElement;
 
     // inited
-    nodes: Array<Node> = new Array();
     curWire: CurrWire = new CurrWire();
-    selectedWire: Pointer<Wire | null>  = {val  : null}; // select wire to delete or config
+    selectedWire: Pointer<Wire | null> = { val: null }; // select wire to delete or config
 
 
     constructor() {
-        this.selectedNode  = proxy({val : null});
-        this.wiresElems  = proxy([]);
+        this.selectedNode = proxy({ val: null });
+        this.wiresElems = proxy([]);
+        this.nodes = proxy([new Node(500, 500, 100, 100)]);
     }
 
+
+    // events
     onLoad(elem: HTMLDivElement) {
+        console.log(elem);
         this.elem = elem;
-        document.addEventListener("mousemove",(evt) => this.onMouseMove(evt));
+        document.addEventListener("mousemove", (evt) => this.onMouseMove(evt));
+        this.elem.addEventListener("click", (evt) => this.onMouseClick(evt));
     }
-
+    onMouseClick(evt: MouseEvent) {
+        evt.stopPropagation();
+        // this.selectedNode.val = null;
+    }
     onMouseMove(evt: MouseEvent) {
         evt.stopPropagation();
 
         const rect = this.elem.getBoundingClientRect();
-        mouse.pos.set(evt.clientX - rect.left,evt.clientY - rect.top);
+        mouse.pos.set(evt.clientX - rect.left, evt.clientY - rect.top);
 
         if (mouse.draging) this.onMouseDrag();
+
+        if (this.curWire.render.val) {
+            this.curWire.endPos.set(mouse.pos.x, mouse.pos.y);
+        }
     }
     onMouseDrag() {
         if (this.selectedNode.val?.draging) {
             let pos: Vector2 = mouse.pos.sub(mouse.offset);
-            this.selectedNode.val.pos.set(pos.x,pos.y);
+            this.selectedNode.val.pos.set(pos.x, pos.y);
         }
     }
-    onMouseUp() {
+    onMouseUp(evt: MouseEvent) {
+        evt.stopPropagation();
         if (this.selectedNode.val) { this.selectedNode.val.draging = false; }
 
-        mouse.offset.set(0,0);
+        // mouse.offset.set(0,0);
         mouse.draging = false;
 
         this.curWire.render.val = false;
+
+
     }
-    onMouseDown() {
+    onMouseDown(evt: MouseEvent) {
+        evt.stopPropagation();
         mouse.draging = true;
         this.selectedWire.val = null;
     }
 
-    onNodeSelected(nodePtr: Pointer<Node>,action : NodeSelectAction, pin : Pin) {
+    onNodeSelected(nodePtr: Pointer<Node>, action: NodeSelectAction, pinDir: PinDir) {
         switch (action) {
             case "Select":
                 this.curWire.render.val = true;
                 this.curWire.node1 = nodePtr;
 
-                this.curWire.startPos.set(nodePtr.val.pos.x,mouse.pos.y);
-                this.curWire.endPos.set(this.curWire.startPos.x,this.curWire.startPos.y);
-            break;
+                this.curWire.startDir = pinDir;
+                this.curWire.startPos.set(mouse.pos.x, mouse.pos.y);
+                this.curWire.endPos.set(this.curWire.startPos.x, this.curWire.startPos.y);
+
+                let oppositePinMap: Map<PinDir, PinDir> = new Map();
+                oppositePinMap.set("Left", "Right");
+                oppositePinMap.set("Right", "Left");
+                oppositePinMap.set("Top", "Bottom");
+                oppositePinMap.set("Bottom", "Top");
+                this.curWire.endDir = oppositePinMap.get(pinDir)!;
+                break;
             case "Drop":
                 if (this.curWire.render.val) {
+                    this.curWire.endDir = pinDir;
                     this.curWire.node2 = nodePtr;
                     this.curWire.render.val = false;
 
                     let wire: Wire = new Wire();
-                    wire.node1Ptr.val = this.curWire.node1.val!;
-                    wire.node2Ptr.val = this.curWire.node2.val!;
+                    wire.node1Ptr = { val: this.curWire.node1.val! };
+                    wire.node2Ptr = { val: this.curWire.node2.val! };
+                    wire.startDir = this.curWire.startDir;
+                    wire.endDir = this.curWire.endDir;
                     this.wiresElems.push(wire);
                 }
-            break;
+                break;
         }
     }
+
+    addNode() {
+        this.nodes.push(new Node(500, 500, 100, 100));
+    }
+
 }
 
 

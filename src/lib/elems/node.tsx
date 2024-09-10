@@ -1,100 +1,164 @@
 import "./node.css";
 
-import { proxy, useSnapshot } from "valtio";
-import camera from "../core/camera";
 import { engine } from "../core/engine";
 
-import { useEffect, useRef } from "react";
 import EdgeInsets from "../types/EdgeInsets";
-import { Vector2 } from "../libs/math";
 import mouse from "../core/mouse";
 import type { Pin, PinDir } from "./pin";
+import { Vector2, type Pointer } from "../libs/math";
+import { proxy, subscribe, useSnapshot } from "valtio";
+import { useEffect, useRef } from "react";
 
 
 
 type NodeSelectAction = "Drop" | "Select";
-
+interface PinsMap { Left: boolean, Right: boolean, Top: boolean, Bottom: boolean };
+interface PinsPosesMap { Left: Vector2, Right: Vector2, Top: Vector2, Bottom: Vector2 };
 class Node {
     // proxies
     pos: Vector2;
     size: Vector2;
     padding: EdgeInsets;
-    
+    text: Pointer<string>;
+    max_width: Pointer<number>;
+    pins: PinsMap;
+    pinsPoses: PinsPosesMap;
+
+    // uninited 
 
     // inited
     uuid: string = crypto.randomUUID();
     draging: boolean = false;
-    pins : Map<PinDir,Pin> = new Map();
 
 
     constructor(x: number, y: number, w: number, h: number) {
         this.pos = proxy(new Vector2(x, y));
         this.size = proxy(new Vector2(w, h));
-        this.padding = proxy(new EdgeInsets(16, 16, 16, 16));
-    }
+        this.padding = proxy(new EdgeInsets(8, 8, 8, 8));
+        this.text = proxy({ val: "random text" });
+        this.max_width = proxy({ val: 200 });
+        this.pins = proxy({ Bottom: false, Top: true, Left: false, Right: false });
+        this.pinsPoses = proxy({ Bottom: new Vector2(0,0), Top: new Vector2(0,0), Left: new Vector2(0,0), Right: new Vector2(0,0) });
+}
 
-    onSelect() {
-        engine.onNodeSelected({ val: this }, "Select",this.pins.get("Bottom")!);
+    onNodeSelected(action : NodeSelectAction,dir : PinDir) {
+        engine.onNodeSelected({ val: this }, action, dir);
     }
     onDrop() {
-        engine.onNodeSelected({ val: this }, "Drop",this.pins.get("Top")!);
     }
 
     onMouseDown() {
         this.draging = true;
-        mouse.offset = new Vector2(mouse.pos.x, mouse.pos.y).sub(camera.toWorldSpace(this.pos))
+        mouse.offset = new Vector2(mouse.pos.x, mouse.pos.y).sub(this.pos);
         engine.selectedNode.val = this;
     }
 
     renderElem(): JSX.Element {
-        return <></>;
-        // return <NodeElem key={this.pin.uuid} node={this} />
+        return <NodeElem node={this} />;
     }
 }
 
 
 
 
-
-function NodeElem({ node }: { node: Node }) : JSX.Element {
-    const posSnap = useSnapshot(node.pos);
-    const container_style: React.CSSProperties = {
-        position: "absolute",
-        left: `${posSnap.x}px`, top: `${posSnap.y}px`,
-    };
-    const node_style: React.CSSProperties = {
-        position: "absolute",
-        padding: `${node.padding.top}px ${node.padding.left}px ${node.padding.bottom}px ${node.padding.right}px`,
-        background: "white",
-        outline: "solid 1px #CCCCCC",
-        borderRadius: "4px",
-    };
-    const pin_style: React.CSSProperties = {
-        position: "absolute",
-        left: `0px`, bottom: `0px`,
-        width: `${15}px`, height: `${15}px`,
-        background: "#333333",
-        borderRadius: "100%",
-    };
+function NodePins({ node }: { node: Node }) {
+    function onMouseDown(evt: MouseEvent, dir: PinDir) {
+        evt.stopPropagation();
+        node.onNodeSelected("Select",dir);
+    }
+    function onMouseUp(evt: MouseEvent, dir: PinDir) {
+        evt.stopPropagation();
+        node.onNodeSelected("Drop",dir);
+    }
 
 
-    const ref = useRef(null);
+    const refs_Left = useRef<HTMLSpanElement | null>(null);
+    const refs_Right = useRef<HTMLSpanElement | null>(null);
+    const refs_Top = useRef<HTMLSpanElement | null>(null);
+    const refs_Bottom = useRef<HTMLSpanElement | null>(null);
+    // TODO: improve
     useEffect(() => {
+        if(engine.elem) {
+            let offset  = engine.elem.getBoundingClientRect();
+            node.pinsPoses.Left.set( refs_Left.current!.getBoundingClientRect().x - offset.x,refs_Left.current!.getBoundingClientRect().y - offset.y);
+            node.pinsPoses.Right.set(refs_Right.current!.getBoundingClientRect().x - offset.x,refs_Right.current!.getBoundingClientRect().y - offset.y);
+            node.pinsPoses.Top.set(  refs_Top.current!.getBoundingClientRect().x - offset.x,refs_Top.current!.getBoundingClientRect().y - offset.y);
+            node.pinsPoses.Bottom.set(refs_Bottom.current!.getBoundingClientRect().x - offset.x,refs_Bottom.current!.getBoundingClientRect().y - offset.y);
+        }
+    },[refs_Left.current?.getBoundingClientRect(),refs_Right.current?.getBoundingClientRect(),refs_Top.current?.getBoundingClientRect(),refs_Bottom.current?.getBoundingClientRect()]);
 
-    }, [ref]);
+    
+    const pinsSnap = useSnapshot(node.pins);
+    return <>
+        <span
+            ref={refs_Top}
+            className={`pin-elem top-pin ${!pinsSnap.Top ? "disabled-pin-elem" : ""}`}
+            onClick={() => engine.selectedNode.val!.pins.Top = !engine.selectedNode.val!.pins.Top}
+            onMouseDown={(evt) => onMouseDown(evt.nativeEvent, "Top")}
+            onMouseUp={(evt) => onMouseUp(evt.nativeEvent, "Top")}
+/>
+        <span
+            ref={refs_Bottom}
+            className={`pin-elem bottom-pin ${!pinsSnap.Bottom ? "disabled-pin-elem" : ""}`}
+            onClick={() => engine.selectedNode.val!.pins.Bottom = !engine.selectedNode.val!.pins.Bottom}
+            onMouseDown={(evt) => onMouseDown(evt.nativeEvent, "Bottom")}
+            onMouseUp={(evt) => onMouseUp(evt.nativeEvent, "Bottom")}
+/>
+        <span
+            ref={refs_Left}
+            className={`pin-elem left-pin ${!pinsSnap.Left ? "disabled-pin-elem" : ""}`}
+            onClick={() => engine.selectedNode.val!.pins.Left = !engine.selectedNode.val!.pins.Left}
+            onMouseDown={(evt) => onMouseDown(evt.nativeEvent, "Left")}
+            onMouseUp={(evt) => onMouseUp(evt.nativeEvent, "Left")}
+/>
+        <span
+            ref={refs_Right}
+            className={`pin-elem right-pin ${!pinsSnap.Right ? "disabled-pin-elem" : ""}`}
+            onClick={() => engine.selectedNode.val!.pins.Right = !engine.selectedNode.val!.pins.Right}
+            onMouseDown={(evt) => onMouseDown(evt.nativeEvent, "Right")}
+            onMouseUp={(evt) => onMouseUp(evt.nativeEvent, "Right")}
+/>
+    </>
+}
 
-    return <div style={container_style} ref={ref}>
-        <div className="pin-elem" style={pin_style}
-            onMouseDown={() => node.onSelect()}
-            onMouseUp={() => node.onDrop()}
+function NodeElem({ node }: { node: Node }): JSX.Element {
+    const posSnap = useSnapshot(node.pos);
+    const textSnap = useSnapshot(node.text);
+    const maxWidthSnap = useSnapshot(node.max_width);
+
+
+
+    const node_style: React.CSSProperties = {
+        left: `${posSnap.x}px`, top: `${posSnap.y}px`,
+        width: `${maxWidthSnap.val}px`
+
+    };
+    const content_style: React.CSSProperties = {
+        padding: `${node.padding.top}px ${node.padding.left}px ${node.padding.bottom}px ${node.padding.right}px`,
+    }
+
+    return <div className="node-elem" style={node_style}
+
+    >
+        <div className="content-elem" style={content_style}
+            onMouseDown={(evt) => { node.onMouseDown(); }}
         >
+            <div>
+            {
+                textSnap.val.split("\n").map((text, idx) => {
+                    if (text.length == 0) {
+                        return <br key={idx} />
+                    }
+                    return <p key={idx}> {text}</p>
+                })
+            }
 
+            </div>
         </div>
-        <div className="rect-elem" style={node_style} onMouseDown={() => node.onMouseDown()}>
-            <p>asdasd</p>
-        </div>
+
+        <NodePins node={node} />
     </div>
 }
 
 
-export { Node ,type NodeSelectAction};
+export { Node, type NodeSelectAction };

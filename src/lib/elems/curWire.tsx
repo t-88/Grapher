@@ -2,18 +2,17 @@ import { proxy, useSnapshot } from "valtio";
 import { Vector2, type Pointer } from "../libs/math";
 import { bazierCurve } from "../libs/utils";
 import type { Node } from "./node";
+import type { PinDir } from "./pin";
 
 function TmpLine({ curWire }: { curWire: CurrWire }) {
     let render = useSnapshot(curWire.render);
     let endPosSnap = useSnapshot(curWire.endPos);
 
-    let path = bazierCurve(curWire.startPos, endPosSnap, 0.25);
-    if (curWire.revDir) {
-        path = bazierCurve(endPosSnap, curWire.startPos, 0.25);
-    }
+    let path : string =  "";
+    path =  bazierCurve(curWire.startPos, endPosSnap, 0.25,curWire.startDir,curWire.endDir);
     if (render.val) {
         return <path d={path}
-            stroke="white"
+            stroke="#999999"
             fill="transparent"
             strokeWidth={2}
         />
@@ -33,6 +32,9 @@ class CurrWire {
     startPos: Vector2 = new Vector2(0,0);
     connectedToEnd: boolean = false;
     revDir: boolean = false; 
+
+    startDir : PinDir = "Bottom";
+    endDir : PinDir = "Top";
 
     constructor() {
         this.render = proxy({val : false});

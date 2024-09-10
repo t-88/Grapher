@@ -9,7 +9,7 @@ function TextAreaInput({ watch, watchValue, onChange }: { watch: object, watchVa
         }
     }, [watch, ref]);
 
-    return <textarea ref={ref} onChange={(evt) => onChange(evt)} ></textarea>
+    return <textarea spellCheck={false} ref={ref} onChange={(evt) => onChange(evt)} ></textarea>
 }
 
 export default TextAreaInput;
