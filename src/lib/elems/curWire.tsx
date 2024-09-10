@@ -8,8 +8,7 @@ function TmpLine({ curWire }: { curWire: CurrWire }) {
     let render = useSnapshot(curWire.render);
     let endPosSnap = useSnapshot(curWire.endPos);
 
-    let path : string =  "";
-    path =  bazierCurve(curWire.startPos, endPosSnap, 0.25,curWire.startDir,curWire.endDir);
+    let {path} =  bazierCurve(curWire.startPos, endPosSnap, 0.25,curWire.startDir,curWire.endDir);
     if (render.val) {
         return <path d={path}
             stroke="#999999"
