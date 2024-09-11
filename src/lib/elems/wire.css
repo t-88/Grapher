@@ -1,0 +1,22 @@
+g {
+    pointer-events: none;
+}
+
+
+path {
+    pointer-events: painted;
+    cursor: pointer;
+    fill: none;
+}
+
+
+
+.wire-selected {
+    .bezier-curve {
+        stroke: #0066ff;
+    }
+    polygon {
+        fill: #0066ff;
+    }
+}
+

@@ -1,11 +1,13 @@
 import { proxy } from "valtio";
 import { Vector2, type Pointer } from "../libs/math";
 import CurrWire from "../elems/curWire";
-import Wire from "../elems/wire";
 import mouse from "./mouse";
 import { Node, type NodeSelectAction } from "../elems/node";
 import type { Pin, PinDir } from "../elems/pin";
+import Wire from "../elems/wire";
 
+
+type SelectedElem = "Node" | "Wire";
 
 class Engine {
     static #instance: Engine;
@@ -18,21 +20,24 @@ class Engine {
 
 
     // prxoy
-    selectedNode: Pointer<Node | null>;
     wiresElems: Array<Wire>;
     nodes: Array<Node>;
-
+    selectedNode: Pointer<Node | null>;
+    selectedWire: Pointer<Wire | null>;  // select wire to delete or config
+    seletedElem : Pointer<SelectedElem | null>;
 
     // not inited
     elem!: HTMLDivElement;
 
     // inited
     curWire: CurrWire = new CurrWire();
-    selectedWire: Pointer<Wire | null> = { val: null }; // select wire to delete or config
 
 
     constructor() {
-        this.selectedNode = proxy({ val: null });
+        this.selectedNode = proxy({ val: null});
+        this.selectedWire = proxy({ val: null });
+        this.seletedElem = proxy({ val: null });
+
         this.wiresElems = proxy([]);
         this.nodes = proxy([new Node(500, 500, 100, 100)]);
     }
@@ -40,7 +45,6 @@ class Engine {
 
     // events
     onLoad(elem: HTMLDivElement) {
-        console.log(elem);
         this.elem = elem;
         document.addEventListener("mousemove", (evt) => this.onMouseMove(evt));
         this.elem.addEventListener("click", (evt) => this.onMouseClick(evt));
@@ -81,7 +85,6 @@ class Engine {
     onMouseDown(evt: MouseEvent) {
         evt.stopPropagation();
         mouse.draging = true;
-        this.selectedWire.val = null;
     }
 
     onNodeSelected(nodePtr: Pointer<Node>, action: NodeSelectAction, pinDir: PinDir) {
@@ -107,6 +110,11 @@ class Engine {
                     this.curWire.node2 = nodePtr;
                     this.curWire.render.val = false;
 
+                    if(this.curWire.node1.val!.uuid == this.curWire.node2.val!.uuid) {
+                        return;
+                    }
+
+
                     let wire: Wire = new Wire();
                     wire.node1Ptr = { val: this.curWire.node1.val! };
                     wire.node2Ptr = { val: this.curWire.node2.val! };
@@ -122,6 +130,20 @@ class Engine {
         this.nodes.push(new Node(500, 500, 100, 100));
     }
 
+
+
+    onSelectNode(node: Node) {
+        this.selectedNode.val = node;
+        this.seletedElem.val = "Node";
+        this.selectedWire.val = null;
+
+    }
+    onSelectWire(wire: Wire) {
+        this.selectedWire.val = wire;
+        this.seletedElem.val = "Wire";
+        this.selectedNode.val = null;
+
+    }    
 }
 
 

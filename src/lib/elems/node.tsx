@@ -35,8 +35,8 @@ class Node {
         this.pos = proxy(new Vector2(x, y));
         this.size = proxy(new Vector2(w, h));
         this.padding = proxy(new EdgeInsets(8, 8, 8, 8));
-        this.text = proxy({ val: "random text" });
-        this.max_width = proxy({ val: 200 });
+        this.text = proxy({ val: "A" });
+        this.max_width = proxy({ val: 100 });
         this.pins = proxy({ Bottom: false, Top: true, Left: false, Right: false });
         this.pinsPoses = proxy({ Bottom: new Vector2(0,0), Top: new Vector2(0,0), Left: new Vector2(0,0), Right: new Vector2(0,0) });
 }
@@ -50,7 +50,7 @@ class Node {
     onMouseDown() {
         this.draging = true;
         mouse.offset = new Vector2(mouse.pos.x, mouse.pos.y).sub(this.pos);
-        engine.selectedNode.val = this;
+        engine.onSelectNode(this);
     }
 
     renderElem(): JSX.Element {
@@ -76,6 +76,7 @@ function NodePins({ node }: { node: Node }) {
     const refs_Right = useRef<HTMLSpanElement | null>(null);
     const refs_Top = useRef<HTMLSpanElement | null>(null);
     const refs_Bottom = useRef<HTMLSpanElement | null>(null);
+
     // TODO: improve
     useEffect(() => {
         if(engine.elem) {
@@ -125,6 +126,7 @@ function NodeElem({ node }: { node: Node }): JSX.Element {
     const posSnap = useSnapshot(node.pos);
     const textSnap = useSnapshot(node.text);
     const maxWidthSnap = useSnapshot(node.max_width);
+    useSnapshot(engine.selectedNode);
 
 
 
@@ -137,7 +139,7 @@ function NodeElem({ node }: { node: Node }): JSX.Element {
         padding: `${node.padding.top}px ${node.padding.left}px ${node.padding.bottom}px ${node.padding.right}px`,
     }
 
-    return <div className="node-elem" style={node_style}
+    return <div className={`node-elem ${engine.selectedNode.val?.uuid == node.uuid ? "node-elem-selected" : ""}`} style={node_style}
 
     >
         <div className="content-elem" style={content_style}

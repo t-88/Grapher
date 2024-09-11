@@ -8,4 +8,7 @@ html , body {
 
 * {
   box-sizing: border-box;
+  user-select: none;
+  font-family: 'Courier New', Courier, monospace;
+
 }

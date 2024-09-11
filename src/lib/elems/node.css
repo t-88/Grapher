@@ -1,8 +1,9 @@
 :root {
-    --pin-size : 10px; 
+    --pin-size: 10px;
 }
 
 .node-elem {
+    cursor: pointer;
     position: absolute;
 
     * {
@@ -22,8 +23,7 @@
         border-radius: 4px;
 
         &:hover {
-            outline: solid green 3px;
-
+            outline: solid #0066ff 3px;
         }
     }
 
@@ -33,7 +33,7 @@
     }
 
     .pin-elem {
-        cursor: pointer; 
+        cursor: pointer;
         position: absolute;
         background: #333333;
         border-radius: 100%;
@@ -50,6 +50,7 @@
         top: calc(var(--pin-size) / -2);
         left: calc((100% - var(--pin-size)) / 2);
     }
+
     .bottom-pin {
         bottom: calc((var(--pin-size)) / -2);
         left: calc((100% - var(--pin-size)) / 2);
@@ -59,11 +60,16 @@
         top: calc((100% - var(--pin-size)) / 2);
         left: calc((var(--pin-size)) / -2);
     }
+
     .right-pin {
         top: calc((100% - var(--pin-size)) / 2);
         right: calc((var(--pin-size)) / -2);
     }
-   
+
 
 }
 
+.node-elem-selected>.content-elem {
+    outline: solid #0066ff 2px;
+
+}

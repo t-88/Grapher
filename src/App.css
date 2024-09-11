@@ -4,7 +4,6 @@
   display: flex;
   align-items: center;
   background-color: #f5f6f7;
-  font-family: 'Courier New', Courier, monospace;
 }
 #canvas  {
   position: relative;

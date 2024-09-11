@@ -43,9 +43,8 @@ function NodesRenderer() {
 }
 
 function WiresRenderer() {
-    const wireElemsSnap = useSnapshot(engine.wiresElems);
-    /* @ts-ignore */
-    return wireElemsSnap.map((wire) => {
+    useSnapshot(engine.wiresElems);
+    return engine.wiresElems.map((wire) => {
         return <Fragment key={wire.uuid}> {wire.renderElem()} </Fragment>;
     });
 }

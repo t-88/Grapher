@@ -40,9 +40,16 @@ function rectCollidePoint(x0: number, y0: number, x1: number, y1: number, w1: nu
     return x0 + 1 > x1 && y0 + 1 > y1 && x1 + w1 > x0 && y1 + h1 > y0;
 }
 
+function lineCollidePoint(x0: number, y0: number, x1: number, y1: number, x: number, y: number): boolean {
+    const EPSILONE = 4;
+    return Math.abs((new Vector2(x0,y0)).sub(new Vector2(x,y)).length() + 
+                    (new Vector2(x1,y1)).sub(new Vector2(x,y)).length() - 
+                    (new Vector2(x1,y1)).sub(new Vector2(x0,y0)).length()) <= EPSILONE;
+}
+
 
 type Pointer<Type> = { val: Type };
 
 
-export { Vector2, circleCollidePoint, rectCollidePoint };
+export { Vector2, circleCollidePoint, rectCollidePoint, lineCollidePoint };
 export type { Pointer };
