@@ -30,6 +30,10 @@ class Vector2 {
         this.x = x;
         this.y = y;
     }
+
+    equal(other : Vector2) {
+        return this.x == other.x && this.y == other.y;
+    }
 }
 
 

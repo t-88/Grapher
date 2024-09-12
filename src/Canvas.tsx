@@ -5,6 +5,8 @@ import { engine } from "./lib/core/engine";
 import { useSnapshot } from "valtio";
 import { useEffect, useRef } from "react";
 import { Canvas_Size } from "./lib/core/consts";
+import { Vector2 } from "./lib/libs/math";
+import type EdgeInsets from "./lib/types/EdgeInsets";
 
 
 
@@ -29,6 +31,8 @@ function Canvas() {
             <svg width={Canvas_Size.w} height={Canvas_Size.h}>
                 <WiresRenderer />
                 {engine.curWire.renderElem()}
+                {/* <OrthognalPathRenderer /> */}
+
             </svg>
 
         </div>

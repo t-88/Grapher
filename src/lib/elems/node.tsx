@@ -123,11 +123,16 @@ function NodePins({ node }: { node: Node }) {
 }
 
 function NodeElem({ node }: { node: Node }): JSX.Element {
+    const ref = useRef<HTMLDivElement>(null);
     const posSnap = useSnapshot(node.pos);
     const textSnap = useSnapshot(node.text);
     const maxWidthSnap = useSnapshot(node.max_width);
     useSnapshot(engine.selectedNode);
 
+    useEffect(() => {
+        if(!ref.current) return;
+        node.size.y = ref.current.getBoundingClientRect().height;
+    },[textSnap]);
 
 
     const node_style: React.CSSProperties = {
@@ -140,7 +145,7 @@ function NodeElem({ node }: { node: Node }): JSX.Element {
     }
 
     return <div className={`node-elem ${engine.selectedNode.val?.uuid == node.uuid ? "node-elem-selected" : ""}`} style={node_style}
-
+                ref={ref}
     >
         <div className="content-elem" style={content_style}
             onMouseDown={(evt) => { node.onMouseDown(); }}
