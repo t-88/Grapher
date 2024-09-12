@@ -22,9 +22,9 @@
         outline: solid 1px #CCCCCC;
         border-radius: 4px;
 
-        &:hover {
+        /* &:hover {
             outline: solid #0066ff 3px;
-        }
+        } */
     }
 
     .disabled-pin-elem {

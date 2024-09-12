@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-function NumberInput({ watch, watchValue, lable, onChange }: { watch: any, watchValue: () => string, lable: string, onChange: Function }) {
+function NumberInput({ watch, watchValue, lable, onChange, max, min }: { watch: any, watchValue: () => string, lable: string, onChange: Function, max?: number, min?: number }) {
     const ref = useRef<HTMLInputElement | null>(null);
     useEffect(() => {
         if (ref.current) {
@@ -19,8 +19,16 @@ function NumberInput({ watch, watchValue, lable, onChange }: { watch: any, watch
             if (parseInt(evt.target.value) < 0) {
                 evt.target.value = "0";
             } else {
-                evt.target.value = parseInt(evt.target.value).toString();
+                let val: number = parseInt(evt.target.value);
+                if (max && val > max) {
+                    val = max;
+                }
+                if (min && val < min) {
+                    val = min;
+                }
+                evt.target.value = val.toString();
             }
+
             onChange(evt);
         }} />
     </div>

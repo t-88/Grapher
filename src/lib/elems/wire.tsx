@@ -1,11 +1,10 @@
-import { lineCollidePoint, Vector2, type Pointer } from "../libs/math";
-import { Node } from "./node";
+import { Vector2, type Pointer } from "../libs/math";
 import { bazierCurve, bezierCubic } from "../libs/utils";
-import type { PinDir } from "./pin";
-import mouse from "../core/mouse";
+import { Node } from "./node";
 import { engine } from "../core/engine";
-import "./wire.css";
 import { proxy, useSnapshot } from "valtio";
+import type { PinDir } from "./pin";
+import "./wire.css";
 
 
 
@@ -17,7 +16,7 @@ function Line({ wire }: { wire: Wire }) {
     startPos = new Vector2(startPos.x + 5, startPos.y);
     endPos = new Vector2(endPos.x + 5, endPos.y);
 
-    let { path, c0, c1 } = bazierCurve(startPos, endPos, 0.25, wire.startDir, wire.endDir);
+    let { path, c0, c1 } = bazierCurve(startPos, endPos, wire.startDir, wire.endDir,{curvature : wire.curvature.val / 100});
 
 
 
@@ -120,6 +119,7 @@ type ArrowDir = "Left" | "Right" | "Both" | "None";
 class Wire {
     // proxies
     arrowDir: Pointer<ArrowDir>;
+    curvature : Pointer<number>;
 
 
     // inited
@@ -131,11 +131,14 @@ class Wire {
     startDir: PinDir = "Bottom";
     endDir: PinDir = "Bottom";
 
+    
+
 
 
     constructor() {
         this.uuid = crypto.randomUUID();
         this.arrowDir = proxy({ val: "Left" });
+        this.curvature = proxy({ val: 25 });
     }
 
     renderElem(): JSX.Element {

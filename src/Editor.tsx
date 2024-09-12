@@ -20,13 +20,13 @@ function WireEditor() {
   const snap = useSnapshot(engine.selectedWire);
   if (engine.selectedWire.val == null) { return <></>; }
 
-  function onSelect(dir : ArrowDir) {
-    engine.selectedWire.val!.arrowDir.val = dir; 
+  function onSelect(dir: ArrowDir) {
+    engine.selectedWire.val!.arrowDir.val = dir;
   }
   return <>
     <div className='edit-area'>
       <h4>Arrow</h4>
-      <DropDownMenu onSelect={(val : ArrowDir) => onSelect(val)} watch={snap.val?.arrowDir} watchValue={() => {return ["Left","Right","Both","None"].indexOf(snap.val?.arrowDir.val ?? "Left")}} defaultIdx={["Left","Right","Both","None"].indexOf(snap.val?.arrowDir.val ?? "Left")} values={["Left","Right","Both","None"]}>
+      <DropDownMenu onSelect={(val: ArrowDir) => onSelect(val)} watch={snap.val?.arrowDir} watchValue={() => { return ["Left", "Right", "Both", "None"].indexOf(snap.val?.arrowDir.val ?? "Left") }} defaultIdx={["Left", "Right", "Both", "None"].indexOf(snap.val?.arrowDir.val ?? "Left")} values={["Left", "Right", "Both", "None"]}>
         <div className="dropdown-menu-item">
           <svg width={80} height={20}>
             <line x1={10} y1={10} x2={40} y2={10} stroke="#333" strokeWidth={1} fill="none" />
@@ -59,11 +59,21 @@ function WireEditor() {
           <p>none</p>
 
         </div>
-
       </DropDownMenu>
     </div>
     <div className='edit-area'>
       <h4>Curvature</h4>
+      <NumberInput
+        min={0}
+        max={100}
+        watch={snap.val!.uuid}
+        watchValue={() => engine.selectedWire.val!.curvature.val.toString()}
+        lable='value'
+        onChange={(evt: React.ChangeEvent<HTMLInputElement>) => {
+          engine.selectedWire.val!.curvature.val = Number.parseInt(evt.target.value) ?? engine.selectedWire.val!.curvature.val;
+        }}
+      />
+
       {/* <NumberInput
         lable='curve'
         watch={0}
@@ -83,13 +93,13 @@ function WireEditor() {
 
 
 
-function DropDownMenu({ children, onSelect,defaultIdx, watch,watchValue , values }: { children: Array<ReactNode>, values:  Array<any> , onSelect: (val : any) => void,defaultIdx? : number,watch : any,watchValue : () => any }) {
+function DropDownMenu({ children, onSelect, defaultIdx, watch, watchValue, values }: { children: Array<ReactNode>, values: Array<any>, onSelect: (val: any) => void, defaultIdx?: number, watch: any, watchValue: () => any }) {
   const [shown, setShown] = useState(false);
   const [selectedChild, setSelectedChild] = useState(defaultIdx ?? 0);
 
   useEffect(() => {
     setSelectedChild(watchValue() as number);
-  },[watch]); 
+  }, [watch]);
 
   function onToggle() {
     setShown(!shown);
@@ -107,9 +117,9 @@ function DropDownMenu({ children, onSelect,defaultIdx, watch,watchValue , values
   return <div className="dropdown-menu"  >
     <button className="btn" onBlur={onFocusOut} onClick={onToggle}>
       <div>
-      {
-        children[selectedChild]
-      }
+        {
+          children[selectedChild]
+        }
       </div>
     </button>
     {
@@ -194,7 +204,7 @@ function NodeEditor() {
 function NodePinEditor() {
   const pinsSnap = useSnapshot(engine.selectedNode);
 
-  
+
 
   return <div className="node-pins-container edit-area">
     <h4>Pins</h4>

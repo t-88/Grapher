@@ -33,7 +33,7 @@ function bezierCubic(s: Vector2,e: Vector2, c0: Vector2, c1: Vector2, t: number)
     return new Vector2(x, y);
 }
 
-function bazierCurve(startPos: Vector2, endPos: Vector2, curvature: number, startDir: PinDir, endDir: PinDir): { path: string, c0: Vector2, c1: Vector2 } {
+function bazierCurve(startPos: Vector2, endPos: Vector2, startDir: PinDir, endDir: PinDir,options? : {curvature? : number}): { path: string, c0: Vector2, c1: Vector2 } {
     // https://github.com/xyflow/xyflow/blob/8dda0eb1446916fdf30aacbc029b01d66a359287/packages/system/src/utils/edges/bezier-edge.ts#L4
     function calculateControlOffset(distance: number, curvature: number): number {
         if (distance >= 0) {
@@ -42,7 +42,7 @@ function bazierCurve(startPos: Vector2, endPos: Vector2, curvature: number, star
         return curvature * 25 * Math.sqrt(-distance);
     }
 
-    function controlPointFromDir(vec1: Vector2, vec2: Vector2, dir: PinDir) {
+    function controlPointFromDir(vec1: Vector2, vec2: Vector2, dir: PinDir,curvature : number) {
         switch (dir) {
             case "Top": return new Vector2(vec1.x, vec1.y - calculateControlOffset(vec1.y - vec2.y, curvature));
             case "Bottom": return new Vector2(vec1.x, vec1.y + calculateControlOffset(vec2.y - vec1.y, curvature));
@@ -51,8 +51,8 @@ function bazierCurve(startPos: Vector2, endPos: Vector2, curvature: number, star
         }
     }
 
-    const controlPoint1 = controlPointFromDir(startPos, endPos, startDir);
-    const controlPoint2 = controlPointFromDir(endPos, startPos, endDir);
+    const controlPoint1 = controlPointFromDir(startPos, endPos, startDir,options?.curvature ?? 0.25);
+    const controlPoint2 = controlPointFromDir(endPos, startPos, endDir,options?.curvature ?? 0.25);
     return {
         path: `M${startPos.x},${startPos.y} 
                           C${controlPoint1.x},${controlPoint1.y} 
