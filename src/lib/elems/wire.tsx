@@ -278,12 +278,12 @@ function Line({ wire }: { wire: Wire }) {
         <g
             className={engine.selectedWire.val?.uuid == wire.uuid ? "wire-selected" : ""}
         >
+            <Arrow />
 
             <path
                 className="bezier-curve"
                 d={path}
-                // stroke="#999"
-                stroke="transparent"
+                stroke="#999"
 
                 strokeWidth={2}
             />
@@ -294,17 +294,6 @@ function Line({ wire }: { wire: Wire }) {
                 strokeWidth={8}
                 onMouseDown={onMouseDown}
             />
-            {
-                // debug lines
-                // lines.map((line) => {
-                //     return <line key={line.start.pos.x} x1={line.start.pos.x} y1={line.start.pos.y} x2={line.end.pos.x} y2={line.end.pos.y} stroke="black" strokeWidth={4} fill="transparent" />
-                // })
-            }
-
-            <Arrow />
-
-
-
 
         </g></>
 }
