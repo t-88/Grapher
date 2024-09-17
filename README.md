@@ -1,6 +1,6 @@
-# Grapher
-**dev is paused**
-[site](grapher-lime.vercel.app)
+# grapher
+**dev is paused**           
+[site](https://grapher-lime.vercel.app/)
 
 
 ## Future ToDos:
