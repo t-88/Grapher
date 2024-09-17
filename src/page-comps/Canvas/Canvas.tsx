@@ -1,12 +1,12 @@
 
 import "./Canvas.css";
 import { Fragment } from "react/jsx-runtime";
-import { engine } from "./lib/core/engine";
+import { engine } from "../../lib/core/engine";
 import { useSnapshot } from "valtio";
 import { useEffect, useRef } from "react";
-import { Canvas_Size } from "./lib/core/consts";
-import { Vector2 } from "./lib/libs/math";
-import type EdgeInsets from "./lib/types/EdgeInsets";
+import { Canvas_Size } from "../../lib/core/consts";
+import { Vector2 } from "../../lib/libs/math";
+import type EdgeInsets from "../../lib/types/EdgeInsets";
 
 
 

@@ -1,7 +1,7 @@
 import './App.css';
-import Editor from './Editor';
-import Tools from './Tools';
-import Canvas from './Canvas';
+import Editor from './page-comps/Editor/Editor';
+import Tools from './page-comps/Tools/Tools';
+import Canvas from './page-comps/Canvas/Canvas';
 
 
 

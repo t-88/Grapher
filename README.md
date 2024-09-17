@@ -1,5 +1,13 @@
 # Grapher
+**dev is paused**
 [site](grapher-lime.vercel.app)
+
+
+## Future ToDos:
+- take/export json file (create a react package) 
+- add wire configs
+- add world space (zoom/drag)
+- small features (redo/undo, remove nodes, shortcuts)
 
 
 ## Credits 

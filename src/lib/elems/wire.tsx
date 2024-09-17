@@ -1,4 +1,4 @@
-import { Vector2, type Pointer } from "../libs/math";
+import { dijkstra_alg, Vector2, type Pointer, type Vertex } from "../libs/math";
 import { bazierCurve, bezierCubic } from "../libs/utils";
 import { Node } from "./node";
 import { engine } from "../core/engine";
@@ -10,133 +10,15 @@ import { Canvas_Size } from "../core/consts";
 
 
 
-interface Vertex {
-    uuid: string,
-    pos: Vector2,
-    left?: Vertex | null,
-    right?: Vertex | null,
-    top?: Vertex | null,
-    bottom?: Vertex | null,
-}
-interface Line {
-    start: Vertex;
-    end: Vertex;
-};
-
-function dijkstra_alg(src: Vertex, target: Vertex, vertices: Array<Vertex>) : Array<Vertex> {
-    interface PathEntry { self: Vertex, dis: number, preVertex: Vertex | null };
-    let path: { [key: string]: PathEntry } = {};
-
-
-    // : Map<string, > = new Map();
-
-    for (let vertex of vertices) {
-        path[vertex.uuid] = { self: vertex, preVertex: null, dis: Number.MAX_SAFE_INTEGER };
-    }
-    path[src.uuid] = { self: src, preVertex: null, dis: 0 };
-
-    let visited = [];
-    let unvisted = Object.keys(path);
-    let count = 0;
-    let prev_dir = "vert";
-    let vertex = null;
-    while (unvisted.length != 0) {
-        count++;
-        if (count > 10000) {
-            break;
-        }
-
-        let un_edjes = [];
-        for (let key of unvisted) {
-            un_edjes.push(path[key]);
-        }
-
-
-        let edje = un_edjes.sort((a: PathEntry, b: PathEntry) => { return a.dis - b.dis; })[0];
-        if(vertex) {
-            if(edje.self.pos.x == vertex.pos.x) {
-                prev_dir = "vert";
-            } else {
-                prev_dir = "horz";
-            }
-        }
-        vertex = edje.self;
-        if (vertex.left) {
-            let dis = path[vertex.uuid].dis + Math.abs(vertex.left.pos.x - vertex.pos.x);
-            if(prev_dir != "horz") {
-                dis += 1000;
-            }
- 
-            if (path[vertex.left.uuid].dis > dis) {
-                path[vertex.left.uuid].dis = dis;
-                path[vertex.left.uuid].preVertex = vertex;
-            }
-        }
-        if (vertex.right) {
-            let dis = path[vertex.uuid].dis + Math.abs(vertex.right.pos.x - vertex.pos.x);
-            if(prev_dir != "horz") {
-                dis += 1000;
-            }
-
-            if (path[vertex.right.uuid].dis > dis) {
-                path[vertex.right.uuid].dis = dis;
-                path[vertex.right.uuid].preVertex = vertex;
-            }
-        }
-        if (vertex.top) {
-            let dis = path[vertex.uuid].dis + Math.abs(vertex.top.pos.y - vertex.pos.y);
-            if(prev_dir != "vert") {
-                dis += 1000;
-            }
-
-            if (path[vertex.top.uuid].dis > dis) {
-                path[vertex.top.uuid].dis = dis;
-                path[vertex.top.uuid].preVertex = vertex;
-            }
-        }
-        if (vertex.bottom) {
-            let dis = path[vertex.uuid].dis + Math.abs(vertex.bottom.pos.y - vertex.pos.y);
-            if(prev_dir != "vert") {
-                dis += 1000;
-            }
-         
-            if (path[vertex.bottom.uuid].dis > dis) {
-                path[vertex.bottom.uuid].dis = dis;
-                path[vertex.bottom.uuid].preVertex = vertex;
-            }
-        }
-
-
-        visited.push(vertex.uuid);
-        unvisted.splice(unvisted.indexOf(vertex.uuid), 1);
-    }
-
-
-    function traceBack(targetUUID: string): Array<Vertex> {
-        let out: Array<Vertex> = [];
-        let count = 0;
-        let cur = path[targetUUID];
-        while (true) {
-            count++;
-            if (count > 1000) {
-                alert("WHILE LOOP!!");
-                break;
-            }
-
-            if (cur.preVertex == null) break;
-            out.push(cur.self);
-            cur = path[cur.preVertex.uuid];
-        }
-
-        return out;
-    }
-
-
-    return traceBack(target.uuid);
-}
 
 function OrthognalPathRenderer({ node1, node2 }: { node1: Node, node2: Node }) {
-    let margin: EdgeInsets = { top: 10, bottom: 10, left: 10, right: 10 };
+    interface Line {
+        start: Vertex;
+        end: Vertex;
+    };
+
+    let margin: EdgeInsets = { top: 40, bottom: 40, left: 40, right: 40 };
+
     let lines: Array<Line> = [];
 
 
@@ -248,7 +130,7 @@ function OrthognalPathRenderer({ node1, node2 }: { node1: Node, node2: Node }) {
     for (let y = 0; y < 4; y++) {
         for (let x = 0; x < 6; x++) {
             let edje = grid_edjes[y * 6 + x];
-            if (y != 0) edje.top = grid_edjes[(y - 1) * 6 + (x - 0)];
+            if (y != 0 && grid_edjes[(y - 1) * 6 + (x - 0)].uuid != srcEdje.top?.uuid && grid_edjes[(y - 1) * 6 + (x - 0)].uuid != targetEdje.top?.uuid) edje.top = grid_edjes[(y - 1) * 6 + (x - 0)];
             if (y != 5 && edje.uuid != srcEdje.top?.uuid && edje.uuid != targetEdje.top?.uuid) edje.bottom = grid_edjes[(y + 1) * 6 + (x + 0)];
             if (x != 0) edje.left = grid_edjes[(y - 0) * 6 + (x - 1)];
             if (x != 5) edje.right = grid_edjes[(y - 0) * 6 + (x + 1)];
@@ -264,12 +146,13 @@ function OrthognalPathRenderer({ node1, node2 }: { node1: Node, node2: Node }) {
     }
 
 
-    let path = dijkstra_alg(srcEdje, targetEdje, [srcEdje, targetEdje, ...grid_edjes]);
+
+    let [path, arcs] = dijkstra_alg(srcEdje, targetEdje, [srcEdje, targetEdje, ...grid_edjes]);
 
 
 
     return <g>
-        {
+        {/* {
             lines.map((line, idx) => {
                 return <line key={idx} x1={line.start.pos.x} y1={line.start.pos.y} x2={line.end.pos.x} y2={line.end.pos.y} stroke="#555" strokeWidth={2} />
 
@@ -283,25 +166,42 @@ function OrthognalPathRenderer({ node1, node2 }: { node1: Node, node2: Node }) {
 
         <rect fill="#00000050" x={grid_border.top_left.x} y={grid_border.top_left.y} width={grid_border.bottom_right.x - grid_border.top_left.x} height={grid_border.bottom_right.y - grid_border.top_left.y} />
         <circle cx={srcPos.x} cy={srcPos.y} fill="yellow" opacity={1} r={4} />
-        <circle cx={targetPos.x} cy={targetPos.y} fill="yellow" opacity={1} r={4} />
+        <circle cx={targetPos.x} cy={targetPos.y} fill="yellow" opacity={1} r={4} /> */}
 
         {
-                (() => {
-                    let elems = [];
-                    for(let i = 0; i < path.length - 1; i++) {
-                        elems.push(<line key={i} x1={path[i].pos.x} y1={path[i].pos.y} x2={path[i + 1].pos.x} y2={path[i + 1].pos.y} stroke="red" strokeWidth={4} />)
-                    }
-                    return elems;
-                })()
+            (() => {
+                let elems = [];
+                for (let i = 0; i < path.length; i++) {
+                    elems.push(<line key={i} x1={path[i].start.x} y1={path[i].start.y} x2={path[i].end.x} y2={path[i].end.y} stroke={`#000`} strokeWidth={2} />)
+                }
+                return elems;
+            })()
 
-                // path.map((vertex,idx) => {
-                // return <line key={idx} x1={line.start.pos.x} y1={line.start.pos.y} x2={line.end.pos.x} y2={line.end.pos.y} stroke="#555" strokeWidth={2} />
-            // })
+        }
+
+        {
+            (() => {
+                let elems = [];
+                for (let i = 0; i < arcs.length; i++) {
+                    elems.push(
+
+
+                        <path
+                            d={`
+                                M ${arcs[i].start.x} ${arcs[i].start.y}
+                                A 10 10 0 0 0  ${arcs[i].end.x} ${arcs[i].end.y}`
+                            }
+                            fill="none"
+                            stroke="black"
+                            strokeWidth="2"
+                        />)
+                }
+                return elems;
+            })()
         }
     </g>
+
 }
-
-
 
 
 function Line({ wire }: { wire: Wire }) {
@@ -315,17 +215,6 @@ function Line({ wire }: { wire: Wire }) {
     let { path, c0, c1 } = bazierCurve(startPos, endPos, wire.startDir, wire.endDir, { curvature: wire.curvature.val / 100 });
 
 
-
-    // split curve into lines
-    // 8 chunks
-    let lines: Array<{ start: Vector2, end: Vector2 }> = [];
-    let lPrevPoint = new Vector2(startPos.x, startPos.y);
-    for (let i = 0; i < 8; i++) {
-        let point = bezierCubic(startPos, endPos, c0, c1, i * 1 / 8)
-        lines.push({ start: lPrevPoint, end: point })
-        lPrevPoint = point;
-    }
-    lines.push({ start: lPrevPoint, end: endPos });
 
     function onMouseDown(evt: React.MouseEvent<SVGGElement, MouseEvent>) {
         // i use pointer-events painted to get the click
@@ -389,13 +278,12 @@ function Line({ wire }: { wire: Wire }) {
             className={engine.selectedWire.val?.uuid == wire.uuid ? "wire-selected" : ""}
         >
 
-            <OrthognalPathRenderer node1={wire.node1Ptr.val} node2={wire.node2Ptr.val} />
+            {/* <OrthognalPathRenderer node1={wire.node1Ptr.val} node2={wire.node2Ptr.val} /> */}
 
             <path
                 className="bezier-curve"
                 d={path}
-                // stroke="#999"
-                stroke="transparent"
+                stroke="#999"
 
                 strokeWidth={2}
             />
@@ -406,16 +294,6 @@ function Line({ wire }: { wire: Wire }) {
                 strokeWidth={8}
                 onMouseDown={onMouseDown}
             />
-            {
-                // debug lines
-                // lines.map((line) => {
-                //     return <line key={line.start.pos.x} x1={line.start.pos.x} y1={line.start.pos.y} x2={line.end.pos.x} y2={line.end.pos.y} stroke="black" strokeWidth={4} fill="transparent" />
-                // })
-            }
-
-
-
-
 
         </g></>
 }
