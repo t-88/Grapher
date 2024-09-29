@@ -4,7 +4,7 @@ import CurrWire from "../elems/curWire";
 import mouse from "./mouse";
 import { Node, type NodeSelectAction } from "../elems/node";
 import type { Pin, PinDir } from "../elems/pin";
-import Wire from "../elems/wire";
+import Wire from "../elems/wire/Wire";
 
 
 type SelectedElem = "Node" | "Wire";
@@ -33,7 +33,7 @@ class Engine {
     curWire: CurrWire = new CurrWire();
 
 
-    constructor() {
+    constructor() { 
         this.selectedNode = proxy({ val: null});
         this.selectedWire = proxy({ val: null });
         this.seletedElem = proxy({ val: null });
@@ -92,6 +92,7 @@ class Engine {
             case "Select":
                 this.curWire.render.val = true;
                 this.curWire.node1 = nodePtr;
+                
 
                 this.curWire.startDir = pinDir;
                 this.curWire.startPos.set(mouse.pos.x, mouse.pos.y);
@@ -118,7 +119,7 @@ class Engine {
                     let wire: Wire = new Wire();
                     wire.node1Ptr = { val: this.curWire.node1.val! };
                     wire.node2Ptr = { val: this.curWire.node2.val! };
-                    wire.startDir = this.curWire.startDir;
+                wire.startDir = this.curWire.startDir;
                     wire.endDir = this.curWire.endDir;
                     this.wiresElems.push(wire);
                 }

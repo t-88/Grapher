@@ -8,11 +8,16 @@ path {
     cursor: pointer;
     fill: none;
 }
+line {
+    pointer-events: painted;
+    cursor: pointer;
+    fill: none;
+}
 
 
 
 .wire-selected {
-    .bezier-curve {
+    .curve {
         stroke: #0066ff;
     }
     polygon {

@@ -37,7 +37,7 @@ class Node {
         this.padding = proxy(new EdgeInsets(8, 8, 8, 8));
         this.text = proxy({ val: "A" });
         this.max_width = proxy({ val: 100 });
-        this.pins = proxy({ Bottom: false, Top: true, Left: false, Right: false });
+        this.pins = proxy({ Bottom: true, Top: true, Left: true, Right: true });
         this.pinsPoses = proxy({ Bottom: new Vector2(0,0), Top: new Vector2(0,0), Left: new Vector2(0,0), Right: new Vector2(0,0) });
 }
 

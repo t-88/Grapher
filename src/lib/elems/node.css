@@ -3,6 +3,7 @@
 }
 
 .node-elem {
+    /* transform: translate(80px,80px); */
     cursor: pointer;
     position: absolute;
 
@@ -18,7 +19,9 @@
 
 
     .content-elem {
-        background: white;
+
+        /* background: white; */
+        background: transparent;
         outline: solid 1px #CCCCCC;
         border-radius: 4px;
 
@@ -35,7 +38,7 @@
     .pin-elem {
         cursor: pointer;
         position: absolute;
-        background: #333333;
+        background: #33333350;
         border-radius: 100%;
         width: var(--pin-size);
         height: var(--pin-size);
@@ -73,3 +76,5 @@
     outline: solid #0066ff 2px;
 
 }
+
+

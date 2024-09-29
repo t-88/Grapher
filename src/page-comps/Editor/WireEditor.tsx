@@ -1,5 +1,5 @@
 import { useSnapshot } from "valtio";
-import type { ArrowDir } from "../../lib/elems/wire";
+import type { ArrowDir, CurveType } from "../../lib/elems/wire/Wire";
 import { engine } from "../../lib/core/engine";
 import DropDownMenu from "../../comps/DropDownMenu/DropDownMenu";
 import NumberInput from "../../comps/NumberInput";
@@ -12,6 +12,11 @@ function WireEditor() {
     engine.selectedWire.val!.arrowDir.val = dir;
   }
 
+  function onSelectCurve(type: CurveType) {
+    engine.selectedWire.val!.curveType.val = type;
+  }
+
+  
 
   return <>
     <div className='edit-area'>
@@ -51,6 +56,25 @@ function WireEditor() {
         </div>
       </DropDownMenu>
     </div>
+
+    <div className='edit-area'>
+      <h4>Curve Type</h4>
+      <DropDownMenu onSelect={(val: CurveType) => onSelectCurve(val)} watch={snap.val?.curveType} 
+                    watchValue={() => { return ["Bezier", "Orthognal", "Line"].indexOf(snap.val?.curveType.val ?? "Bezier") }} 
+                    defaultIdx={["Bezier", "Orthognal", "Line"].indexOf(snap.val?.curveType.val ?? "Bezier")} 
+                    values={["Bezier", "Orthognal", "Line"]}>
+        <div className="dropdown-menu-item">
+          <p style={{padding: "5px"}}>Bezier</p>
+        </div>
+        <div className="dropdown-menu-item">
+          <p style={{padding: "5px"}}>Orthognal</p>
+        </div>
+        <div className="dropdown-menu-item">
+          <p style={{padding: "5px"}}>Line</p>
+        </div>
+      </DropDownMenu>
+    </div>
+    
     <div className='edit-area'>
       <h4>Curvature</h4>
       <NumberInput
