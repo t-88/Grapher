@@ -28,11 +28,6 @@ class Wire {
     startDir: PinDir = "Bottom";
     endDir: PinDir = "Bottom";
 
-    
-
-
-
-
     constructor() {
         this.uuid = crypto.randomUUID();
         this.arrowDir = proxy({ val: "Left" });
@@ -40,6 +35,33 @@ class Wire {
         this.curveType = proxy({ val: "Orthognal" });
     }
 
+    jsonDump() {
+        return JSON.parse(JSON.stringify({
+            uuid: this.uuid, 
+            arrowDir: this.arrowDir.val, 
+            curvature: this.curvature.val, 
+            curveType: this.curveType.val, 
+            srcUUID: this.node1Ptr.val.uuid, 
+            targetUUID: this.node2Ptr.val.uuid,
+            srcDir: this.startDir,
+            targetDir: this.endDir,
+        }));
+    }
+
+    static jsonLoad(data : {[key : string] : any},nodesMap : {[key : string] : Pointer<Node>})  : Wire {
+        let out = new Wire();
+        
+        out.uuid = data["uuid"];
+        out.arrowDir.val = data["arrowDir"];
+        out.curvature.val = data["curvature"];
+        out.curveType.val = data["curveType"];
+
+        out.node1Ptr = nodesMap[data["srcUUID"]];
+        out.node2Ptr = nodesMap[data["targetUUID"]];
+        out.startDir = data["srcDir"];
+        out.endDir = data["targetDir"];
+        return out;
+    }
 
     onWireSelected() {
         engine.onSelectWire(this);

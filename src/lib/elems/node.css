@@ -20,8 +20,7 @@
 
     .content-elem {
 
-        /* background: white; */
-        background: transparent;
+        background: white;
         outline: solid 1px #CCCCCC;
         border-radius: 4px;
 

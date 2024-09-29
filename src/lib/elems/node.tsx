@@ -31,6 +31,8 @@ class Node {
     draging: boolean = false;
 
 
+
+   
     constructor(x: number, y: number, w: number, h: number) {
         this.pos = proxy(new Vector2(x, y));
         this.size = proxy(new Vector2(w, h));
@@ -39,7 +41,53 @@ class Node {
         this.max_width = proxy({ val: 100 });
         this.pins = proxy({ Bottom: true, Top: true, Left: true, Right: true });
         this.pinsPoses = proxy({ Bottom: new Vector2(0,0), Top: new Vector2(0,0), Left: new Vector2(0,0), Right: new Vector2(0,0) });
-}
+    }
+
+    jsonDump() {
+        return JSON.parse(JSON.stringify({
+            uuid : this.uuid,
+            text : this.text.val,
+            pos : this.pos,
+            size : this.size,
+            max_width : this.max_width.val,
+        padding : this.padding,
+            pins:  JSON.parse(JSON.stringify(this.pins)),
+            pinsPoses: {
+                "Left": this.pinsPoses.Left.jsonDump(),
+                "Right": this.pinsPoses.Right.jsonDump(),
+                "Top": this.pinsPoses.Top.jsonDump(),
+                "Bottom": this.pinsPoses.Bottom.jsonDump(),
+            },
+        }));
+    }
+
+    static jsonLoad(node : {[key : string] : any}) : Node {
+        let out = new Node(0,0,0,0);
+        out.uuid = node["uuid"];
+        out.text.val = node["text"];
+        out.pos.setVec(Vector2.jsonLoad(node["pos"]));
+        out.size.setVec(Vector2.jsonLoad(node["size"]));
+        out.max_width.val = node["max_width"];
+
+        out.padding.bottom = node["padding"]["bottom"];
+        out.padding.top = node["padding"]["top"];
+        out.padding.left = node["padding"]["left"];
+        out.padding.right = node["padding"]["right"];
+
+
+        out.pinsPoses.Top.setVec(Vector2.jsonLoad(node["pinsPoses"]["Top"]));
+        out.pinsPoses.Bottom.setVec(Vector2.jsonLoad(node["pinsPoses"]["Bottom"]));
+        out.pinsPoses.Right.setVec(Vector2.jsonLoad(node["pinsPoses"]["Right"]));
+        out.pinsPoses.Left.setVec(Vector2.jsonLoad(node["pinsPoses"]["Left"]));
+
+        out.pins.Bottom = node["pins"]["Bottom"];
+        out.pins.Top = node["pins"]["Top"];
+        out.pins.Left = node["pins"]["Left"];
+        out.pins.Right = node["pins"]["Right"];
+
+        return out;
+    }
+
 
     onNodeSelected(action : NodeSelectAction,dir : PinDir) {
         engine.onNodeSelected({ val: this }, action, dir);

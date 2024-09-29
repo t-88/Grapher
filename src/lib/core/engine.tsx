@@ -39,7 +39,7 @@ class Engine {
         this.seletedElem = proxy({ val: null });
 
         this.wiresElems = proxy([]);
-        this.nodes = proxy([new Node(500, 500, 100, 100)]);
+        this.nodes = proxy([]);
     }
 
 
@@ -145,6 +145,46 @@ class Engine {
         this.selectedNode.val = null;
 
     }    
+
+
+
+
+    saveToJson() {
+        let nodes_json : {[key : string] : any}= {};
+        for(let node of this.nodes) {
+            nodes_json[node.uuid] = node.jsonDump();
+        }
+        let wires_json = [];
+        for(let wire of this.wiresElems) {
+            wires_json.push(wire.jsonDump());
+        }
+
+        let out = {
+            nodes : nodes_json,
+            wires : wires_json,
+        };
+
+        localStorage.setItem("lastGraph",JSON.stringify(out));
+        return out;
+    }
+
+    loadFromJson(data : {[key : string] : any}) {
+        let nodesMap : {[key : string] : Pointer<Node>} = {};
+
+        this.nodes.length = 0;
+        for(let nodeUUID of Object.keys(data["nodes"]!)) {
+            const nodeData = data["nodes"][nodeUUID];
+            const node = Node.jsonLoad(nodeData);
+            nodesMap[nodeUUID] = { val : node };
+            this.nodes.push(node);
+        }
+
+        this.wiresElems.length = 0;
+        for(let wire of data["wires"]!) {
+            this.wiresElems.push(Wire.jsonLoad(wire,nodesMap));
+        }
+
+    }
 }
 
 
@@ -157,3 +197,4 @@ function init_engine() {
 }
 
 export { Engine, engine, init_engine };
+

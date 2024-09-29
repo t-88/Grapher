@@ -30,6 +30,11 @@ class Vector2 {
         this.x = x;
         this.y = y;
     }
+    setVec(vec : Vector2) {
+        this.x = vec.x;
+        this.y = vec.y;
+    }
+
 
     equal(other : Vector2) {
         return this.x == other.x && this.y == other.y;
@@ -46,6 +51,16 @@ class Vector2 {
     static new( x : number, y : number) : Vector2 {
         return new Vector2(x,y);
     }    
+
+    jsonDump() {
+        return {
+            x : this.x,
+            y : this.y,
+        };
+    }
+    static jsonLoad(vec : {[key : string] : number}) {
+        return new Vector2(vec["x"],vec["y"]); 
+    }
 }
 
 

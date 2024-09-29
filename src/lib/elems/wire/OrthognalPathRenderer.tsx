@@ -33,6 +33,7 @@ interface Line {
 
 let MARGIN: EdgeInsets = { top: 30, bottom: 30, left: 30, right: 30 };
 const PIN_SIZE = 5;
+const headLen = 14;
 
 export default function OrthognalPathRenderer({ wire, node1, node2, onMouseDown }: { wire: Wire, node1: Node, node2: Node, onMouseDown: () => void }) {
     function vertexFromDir(dir : PinDir,node : Node) : Vertex {
@@ -224,7 +225,6 @@ function Arrow({ wire, startLine, endLine }: { wire: Wire, startLine: BLine, end
     if(!startLine || !endLine) return <></>;
 
     // arrow head logic
-    const headLen = 14;
     switch (wire.arrowDir.val) {
         case "Left": {
             let v1 = new Vector2(startLine.end.x - headLen / 2, startLine.end.y - headLen);
