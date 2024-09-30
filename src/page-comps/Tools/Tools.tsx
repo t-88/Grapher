@@ -1,3 +1,4 @@
+import { proxy, useSnapshot } from "valtio";
 import { engine } from "../../lib/core/engine";
 import "./Tools.css";
 
@@ -11,11 +12,13 @@ function Tools() {
         <center id='logo'><h3>Grapher</h3></center>
         <button onClick={() => engine.addNode()}>Add Node</button>
         <button onClick={() => engine.saveToJson()}>Save To Json</button>
+        <button onClick={() => onLoadJson()}>Load From Json</button>
         <textarea name="" id=""></textarea>
     </div>
 }
 
 export default Tools;
+
 
 
 let DATA = {

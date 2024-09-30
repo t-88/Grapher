@@ -23,6 +23,7 @@ class Node {
     max_width: Pointer<number>;
     pins: PinsMap;
     pinsPoses: PinsPosesMap;
+    bgColor : Pointer<string>;
 
     // uninited 
 
@@ -41,6 +42,8 @@ class Node {
         this.max_width = proxy({ val: 100 });
         this.pins = proxy({ Bottom: true, Top: true, Left: true, Right: true });
         this.pinsPoses = proxy({ Bottom: new Vector2(0,0), Top: new Vector2(0,0), Left: new Vector2(0,0), Right: new Vector2(0,0) });
+        this.bgColor = proxy({ val : "white" });
+        
     }
 
     jsonDump() {
@@ -175,6 +178,7 @@ function NodeElem({ node }: { node: Node }): JSX.Element {
     const posSnap = useSnapshot(node.pos);
     const textSnap = useSnapshot(node.text);
     const maxWidthSnap = useSnapshot(node.max_width);
+    const bgColorSnap = useSnapshot(node.bgColor);
     useSnapshot(engine.selectedNode);
 
     useEffect(() => {
@@ -185,7 +189,8 @@ function NodeElem({ node }: { node: Node }): JSX.Element {
 
     const node_style: React.CSSProperties = {
         left: `${posSnap.x}px`, top: `${posSnap.y}px`,
-        width: `${maxWidthSnap.val}px`
+        width: `${maxWidthSnap.val}px`,
+        background: bgColorSnap.val,
 
     };
     const content_style: React.CSSProperties = {
