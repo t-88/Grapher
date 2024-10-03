@@ -56,11 +56,19 @@ export default function OrthognalPathRenderer({ wire, node1, node2, onMouseDown 
             (() => {
                 let elems = [];
                 for (let i = 0; i < path.length - 1; i++) {
-                    elems.push(<line key={i} x1={path[i].x} y1={path[i].y} x2={path[i + 1].x} y2={path[i + 1].y} stroke="#900" strokeWidth={2} />)
+                    elems.push(<line key={i} x1={path[i].x} y1={path[i].y} x2={path[i + 1].x} y2={path[i + 1].y} stroke="transparent" className="hidden-path" strokeWidth={10}  onMouseDown={onMouseDown} />)
                 }
                 return elems;
             })()
-
+        }        
+        {
+            (() => {
+                let elems = [];
+                for (let i = 0; i < path.length - 1; i++) {
+                    elems.push(<line className="curve" key={i} x1={path[i].x} y1={path[i].y} x2={path[i + 1].x} y2={path[i + 1].y} stroke="#999" strokeWidth={2} />)
+                }
+                return elems;
+            })()
         }
     </g>
 

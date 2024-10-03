@@ -26,11 +26,13 @@ export default function BezierPathRenderer({ node1, node2, wire, onMouseDown }: 
                 className="curve"
                 d={path}
                 stroke="#999"
+                fill="none"
 
                 strokeWidth={2}
             />
 
             <path d={path}
+            className="hidden-path"
                 stroke="transparent"
                 strokeWidth={8}
                 onMouseDown={onMouseDown}

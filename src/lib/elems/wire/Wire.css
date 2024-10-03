@@ -3,15 +3,12 @@ g {
 }
 
 
-path {
+
+.hidden-path {
     pointer-events: painted;
     cursor: pointer;
     fill: none;
-}
-line {
-    pointer-events: painted;
-    cursor: pointer;
-    fill: none;
+    stroke: transparent;
 }
 
 
