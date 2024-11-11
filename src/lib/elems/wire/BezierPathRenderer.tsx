@@ -44,7 +44,7 @@ export default function BezierPathRenderer({ node1, node2, wire, onMouseDown }: 
 
 function Arrow({ wire, c0, c1, startPos, endPos }: { wire: Wire, c0: Vector2, c1: Vector2, startPos: Vector2, endPos: Vector2 }) {
     // arrow head logic
-    const headLen = 16;
+    const headLen = 14;
     switch (wire.arrowDir.val) {
         case "Left": {
             const prevPoint = bezierCubic(startPos, endPos, c0, c1, 0.95);

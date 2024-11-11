@@ -3,6 +3,8 @@ import type { ArrowDir, CurveType } from "../../lib/elems/wire/Wire";
 import { engine } from "../../lib/core/engine";
 import DropDownMenu from "../../comps/DropDownMenu/DropDownMenu";
 import NumberInput from "../../comps/NumberInput";
+import type { Pointer } from "../../lib/libs/math";
+import type Wire from "../../lib/elems/wire/Wire";
 
 function WireEditor() {
   const snap = useSnapshot(engine.selectedWire);
@@ -16,6 +18,13 @@ function WireEditor() {
     engine.selectedWire.val!.curveType.val = type;
   }
 
+
+  function PerTypeOptions() {
+    switch (snap.val?.curveType.val) {
+      case "Bezier": return <BezierOptions snap={snap} />;
+      default: return <OrthogonalOptions snap={snap} />;
+    }
+  }
   
 
   return <>
@@ -75,7 +84,14 @@ function WireEditor() {
       </DropDownMenu>
     </div>
     
-    <div className='edit-area'>
+    <PerTypeOptions />
+
+  </>
+}
+
+function BezierOptions({snap} : { snap : Pointer<Wire | null>}) {
+  return <>
+   <div className='edit-area'>
       <h4>Curvature</h4>
       <NumberInput
         min={0}
@@ -87,13 +103,20 @@ function WireEditor() {
           engine.selectedWire.val!.curvature.val = Number.parseInt(evt.target.value) ?? engine.selectedWire.val!.curvature.val;
         }}
       />
-
     </div>
-    {/* <div className='edit-area'> */}
-    {/* <h4>Wire Type</h4> */}
-    {/* </div> */}
   </>
 }
+
+
+
+function OrthogonalOptions({snap} : { snap : Pointer<Wire | null>}) {
+  return <>
+   <div className='edit-area'>
+      <b>(add option...)</b>
+    </div>
+  </>
+}
+
 
 
 

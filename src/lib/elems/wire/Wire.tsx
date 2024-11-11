@@ -6,6 +6,7 @@ import type { Pointer } from "../../libs/math";
 import { engine } from "../../core/engine";
 import BezierPathRenderer from "./BezierPathRenderer";
 import OrthognalPathRenderer from "./OrthognalPathRenderer";
+import LinePathRenderer from "./LinePathRenderer";
 
 
 
@@ -70,7 +71,7 @@ class Wire {
     renderElem(): JSX.Element {
         switch (this.curveType.val) {
             case "Line":
-                return <BezierPathRenderer wire={this} node1={this.node1Ptr.val} node2={this.node2Ptr.val} onMouseDown={() => this.onWireSelected()} />
+                return <LinePathRenderer wire={this} node1={this.node1Ptr.val} node2={this.node2Ptr.val} onMouseDown={() => this.onWireSelected()} />
             break;
             case "Orthognal":
                 return <OrthognalPathRenderer wire={this} node1={this.node1Ptr.val} node2={this.node2Ptr.val} onMouseDown={() => this.onWireSelected()} />
