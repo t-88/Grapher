@@ -32,7 +32,7 @@ class Wire {
         this.uuid = crypto.randomUUID();
         this.arrowDir = proxy({ val: "Left" });
         this.curvature = proxy({ val: 25 });
-        this.curveType = proxy({ val: "Orthognal" });
+        this.curveType = proxy({ val: "Bezier" });
     }
 
     jsonDump() {

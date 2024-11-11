@@ -60,7 +60,8 @@ export default function OrthognalPathRenderer({ wire, node1, node2, onMouseDown 
                 }
                 return elems;
             })()
-        }        
+        }       
+
         {
             (() => {
                 let elems = [];
@@ -70,10 +71,81 @@ export default function OrthognalPathRenderer({ wire, node1, node2, onMouseDown 
                 return elems;
             })()
         }
+        <Arrow wire={wire}  path={path as Vector2[]}/>
+
     </g>
 
 }
 
+
+
+function Arrow({ wire, path, }: { wire: Wire,path : Vector2[] }) {
+
+
+    // arrow head logic
+    const headLen1 = 8;
+    const headLen2 = 8;
+
+    const endVect = Vector2.new(path[path.length - 1].x, path[path.length - 1].y);
+    const startVec = Vector2.new(path[0].x, path[0].y);
+    const isEndHorz = path[path.length - 1].y ==  path[path.length - 2].y;
+    const isStartHorz = path[0].y ==  path[1].y;
+
+    function leftArrow() {
+        let v1 = Vector2.new(0,0);
+        let v2 = Vector2.new(0,0);
+        let v3 = Vector2.new(0,0);            
+        if(!isEndHorz) {
+            let dir = (path[path.length - 1].y >  path[path.length - 2].y) ? -1 : 1;
+            v1.set(endVect.x - headLen1, endVect.y + dir *  headLen1);
+            v2.set(endVect.x + headLen1, endVect.y + dir *  headLen1);
+            v3.set(endVect.x, endVect.y);
+        } else {
+            let dir = (path[path.length - 1].x >  path[path.length - 2].x) ? -1 : 1;
+            v1.set(endVect.x + dir * headLen1, endVect.y - headLen1);
+            v2.set(endVect.x + dir * headLen1, endVect.y + headLen1);
+            v3.set(endVect.x, endVect.y);
+        }
+        return <polygon points={`${v1.x},${v1.y} ${v2.x},${v2.y} ${v3.x},${v3.y}`} fill="#999" stroke="transparent" strokeWidth={0} />
+
+    }
+
+    function rightArrow() { 
+        let v1 = Vector2.new(0,0);
+        let v2 = Vector2.new(0,0);
+        let v3 = Vector2.new(0,0);    
+        if(!isStartHorz) {
+            let dir = (path[0].y > path[1].y) ? -1 : 1;
+            v1.set(startVec.x - headLen1, startVec.y + dir * headLen1);
+            v2.set(startVec.x + headLen1, startVec.y + dir * headLen1);
+            v3.set(startVec.x, startVec.y);
+        } else {
+            let dir = (path[0].x > path[1].x) ? -1 : 1;
+            v1.set(startVec.x + dir * headLen1, startVec.y - headLen1);
+            v2.set(startVec.x + dir * headLen1, startVec.y + headLen1);
+            v3.set(startVec.x, startVec.y);
+        }
+
+        return <polygon points={`${v1.x},${v1.y} ${v2.x},${v2.y} ${v3.x},${v3.y}`} fill="#999" stroke="transparent" strokeWidth={0} />
+    }
+
+    
+    switch (wire.arrowDir.val) {
+        case "Left": {
+            return leftArrow();
+        }
+
+        case "Right": {
+          return rightArrow();
+        }
+
+        case "Both": {
+          return [leftArrow(),rightArrow()];
+        }
+        case "None":
+            return <></>
+    }
+}
 
 // NOTE: debug drawing 
 
