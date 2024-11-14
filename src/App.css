@@ -5,6 +5,9 @@
   align-items: center;
   background-color: #f5f6f7;
 }
+#sketch-canvas {
+  overflow: hidden;
+}
 #canvas  {
   position: relative;
   width:  1100px;

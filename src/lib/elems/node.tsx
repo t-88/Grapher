@@ -8,6 +8,7 @@ import type { Pin, PinDir } from "./pin";
 import { Vector2, type Pointer } from "../libs/math";
 import { proxy, subscribe, useSnapshot } from "valtio";
 import { useEffect, useRef } from "react";
+import camera from "../core/camera";
 
 
 
@@ -100,7 +101,7 @@ class Node {
 
     onMouseDown() {
         this.draging = true;
-        mouse.offset = new Vector2(mouse.pos.x, mouse.pos.y).sub(this.pos);
+        mouse.offset =   camera.toWorldSpace(new Vector2(mouse.pos.x, mouse.pos.y)).sub(this.pos);
         engine.onSelectNode(this);
     }
 
@@ -180,6 +181,8 @@ function NodeElem({ node }: { node: Node }): JSX.Element {
     const maxWidthSnap = useSnapshot(node.max_width);
     const bgColorSnap = useSnapshot(node.bgColor);
     useSnapshot(engine.selectedNode);
+    useSnapshot(camera.offset);
+    useSnapshot(camera.zoom);
 
     useEffect(() => {
         if(!ref.current) return;
@@ -187,8 +190,10 @@ function NodeElem({ node }: { node: Node }): JSX.Element {
     },[textSnap]);
 
 
+
+    const pos = camera.toWorldSpace(posSnap);
     const node_style: React.CSSProperties = {
-        left: `${posSnap.x}px`, top: `${posSnap.y}px`,
+        left: `${pos.x}px`, top: `${pos.y}px`,
         width: `${maxWidthSnap.val}px`,
         background: bgColorSnap.val,
 

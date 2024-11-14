@@ -5,6 +5,7 @@ import mouse from "./mouse";
 import { Node, type NodeSelectAction } from "../elems/node";
 import type { Pin, PinDir } from "../elems/pin";
 import Wire from "../elems/wire/Wire";
+import camera from "./camera";
 
 
 type SelectedElem = "Node" | "Wire";
@@ -25,12 +26,14 @@ class Engine {
     selectedNode: Pointer<Node | null>;
     selectedWire: Pointer<Wire | null>;  // select wire to delete or config
     seletedElem : Pointer<SelectedElem | null>;
-
     // not inited
     elem!: HTMLDivElement;
 
     // inited
     curWire: CurrWire = new CurrWire();
+    ppos: Vector2 = new Vector2(0,0);
+
+
 
 
     constructor() { 
@@ -48,6 +51,7 @@ class Engine {
         this.elem = elem;
         document.addEventListener("mousemove", (evt) => this.onMouseMove(evt));
         this.elem.addEventListener("click", (evt) => this.onMouseClick(evt));
+        document.addEventListener("keydown", (evt) => this.onKeyDown(evt));
     }
     onMouseClick(evt: MouseEvent) {
         evt.stopPropagation();
@@ -57,6 +61,7 @@ class Engine {
         evt.stopPropagation();
 
         const rect = this.elem.getBoundingClientRect();
+        mouse.ppos.set(mouse.pos.x,mouse.pos.y);
         mouse.pos.set(evt.clientX - rect.left, evt.clientY - rect.top);
 
         if (mouse.draging) this.onMouseDrag();
@@ -67,8 +72,11 @@ class Engine {
     }
     onMouseDrag() {
         if (this.selectedNode.val?.draging) {
-            let pos: Vector2 = mouse.pos.sub(mouse.offset);
+            let pos: Vector2 = camera.toWorldSpace(mouse.pos).sub(mouse.offset);
             this.selectedNode.val.pos.set(pos.x, pos.y);
+        } else if(!this.curWire.render.val) {
+            camera.setOffsetX(camera.offset.x + (mouse.pos.x - mouse.ppos.x));
+            camera.setOffsetY(camera.offset.y + (mouse.pos.y - mouse.ppos.y));
         }
     }
     onMouseUp(evt: MouseEvent) {
@@ -85,6 +93,11 @@ class Engine {
     onMouseDown(evt: MouseEvent) {
         evt.stopPropagation();
         mouse.draging = true;
+
+    }
+
+    onKeyDown(evt: KeyboardEvent) {
+       
     }
 
     onNodeSelected(nodePtr: Pointer<Node>, action: NodeSelectAction, pinDir: PinDir) {
@@ -185,6 +198,8 @@ class Engine {
         }
 
     }
+
+   
 }
 
 

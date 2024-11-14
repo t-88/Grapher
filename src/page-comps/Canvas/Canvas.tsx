@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { Canvas_Size } from "../../lib/core/consts";
 import { Vector2 } from "../../lib/libs/math";
 import type EdgeInsets from "../../lib/types/EdgeInsets";
+import camera from "../../lib/core/camera";
 
 
 
@@ -24,19 +25,33 @@ function Canvas() {
             ref={ref}
             onMouseDown={(evt) => engine.onMouseDown(evt.nativeEvent)}
             onMouseUp={(evt) => engine.onMouseUp(evt.nativeEvent)}
-        >
 
+        >
+           <MiniMapElemsRenderer />
             <NodesRenderer />
 
             <svg width={Canvas_Size.w} height={Canvas_Size.h}>
                 <WiresRenderer />
                 {engine.curWire.renderElem()}
-                {/* <OrthognalPathRenderer /> */}
-
             </svg>
 
         </div>
     </div>
+}
+
+function MiniMapElemsRenderer() {
+    useSnapshot(engine.nodes);
+    useSnapshot(camera.offset);
+    return  <div id="minimap">
+        <div id="minimap-visible" style={{left : 45 - camera.offset.x / Canvas_Size.w * 110, top: 40 - camera.offset.y / Canvas_Size.h * 80}}>
+       
+        </div>
+        {
+        engine.nodes.map((node) => {
+            return <div className="minimap-node" style={{left: 45 + (node.pos.x )  / Canvas_Size.w * 110,top: 40 + (node.pos.y ) / Canvas_Size.h * 80 }}></div>;
+        })
+    }     
+</div>
 }
 
 function NodesRenderer() {

@@ -1,0 +1,23 @@
+#minimap {
+    width:  200px;
+    height: 160px;
+    background-color: white;
+    position: absolute;
+    right: 0;
+    border: solid 1px black;
+    border-radius: 2px;
+}
+#minimap-visible {
+    position: absolute;
+    width:  110px;
+    height: 80px;
+    outline: solid 1px black;
+    background-color: rgba(128, 128, 128, 0.24);
+
+}
+.minimap-node {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: green;
+}

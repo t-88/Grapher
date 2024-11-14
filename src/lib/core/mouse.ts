@@ -7,11 +7,13 @@ class Mouse {
 
 
     pos: Vector2;
+    ppos: Vector2;
     offset: Vector2;
     draging: boolean;
 
     constructor() {
         this.pos = new Vector2(0, 0);
+        this.ppos = new Vector2(0, 0);
         this.offset = new Vector2(0, 0);
         this.draging = false;
     }

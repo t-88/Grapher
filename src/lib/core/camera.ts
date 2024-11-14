@@ -1,12 +1,17 @@
-import { Vector2 } from "../libs/math";
+import { proxy } from "valtio";
+import { Vector2, type Pointer } from "../libs/math";
+import { Canvas_Size } from "./consts";
 
 class Camera {
     static #instance : Camera;
 
-    offset : Vector2 = new Vector2(0, 0);
-    zoom : number = 1; 
+    offset : Vector2;
+    zoom :  Pointer<number>; 
 
     constructor() {
+        this.offset = proxy(new Vector2(0,0));
+        this.zoom = proxy({val : 1}); 
+
     }
 
     
@@ -28,12 +33,17 @@ class Camera {
         } else if(z < 0.8) {
             z = 0.8;
         }
-        this.zoom = z;
+        this.zoom.val = z;
     }
     setOffsetX(x : number) {
-      this.offset.x = x;
+        if(x < -Canvas_Size.x / 2+ 90) return;
+        if(x > Canvas_Size.x / 2 - 90) return;
+        this.offset.x = x;
     }
     setOffsetY(y : number) {
+        if(y < -Canvas_Size.y / 2) return;
+        if(y > Canvas_Size.y / 2 ) return;
+
         this.offset.y = y;
       }
   
@@ -46,13 +56,15 @@ class Camera {
 
 
     toWorldSpace(vec : Vector2) : Vector2 {
-        return   new Vector2((vec.x + this.offset.x) * this.zoom, (vec.y + this.offset.y) * this.zoom);
+        return   new Vector2((vec.x + this.offset.x) * this.zoom.val, (vec.y + this.offset.y) * this.zoom.val);
 
     }
     toScreenSpace(vec : Vector2) : Vector2 {
-        return  new Vector2(vec.x / this.zoom - this.offset.x , vec.y / this.zoom - this.offset.y);
+        return  new Vector2(vec.x / this.zoom.val - this.offset.x , vec.y / this.zoom.val - this.offset.y);
     }
-
+    toScreenSpaceEE(vec : Vector2) : Vector2 {
+        return  new Vector2(vec.x  - this.offset.x , vec.y  - this.offset.y);
+    }
 
 }
 
